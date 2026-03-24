@@ -103,6 +103,39 @@ Notes:
 - The script defaults to `Superset-x86_64.AppImage` from `desktop-v<version>` release tag.
 - Publication to AUR remains manual in this phase (no credential automation).
 
+## Linux smoke suite (reprodutível)
+
+A suíte oficial de smoke Linux está em `apps/desktop/scripts/smoke-linux.sh`.
+
+Wrappers por distro:
+
+```bash
+# Ubuntu profile
+bun run smoke:linux:ubuntu -- --skip-install --ci
+
+# Arch profile
+bun run smoke:linux:arch -- --skip-install --ci
+```
+
+Runner único (com opções):
+
+```bash
+bun run smoke:linux -- --profile ubuntu --skip-install --ci
+bun run smoke:linux -- --profile arch --skip-install --ci
+bun run smoke:linux -- --profile ubuntu --with-package
+```
+
+O smoke valida:
+- compile da app (`compile:app`)
+- cópia de módulos nativos (`copy:native-modules`)
+- invariantes de runtime (`validate:native-runtime`)
+- opcionalmente, presença de AppImage + `.deb` + manifesto Linux (`--with-package`)
+
+## Operação M5 (go-live)
+
+- Checklist operacional: `apps/desktop/docs/linux-go-live-checklist.md`
+- Runbook de triagem rápida: `apps/desktop/docs/linux-triage-runbook.md`
+
 ## Troubleshooting
 
 - **Linux auto-update not working**: Verify `release/*-linux.yml` is uploaded to the GitHub release
