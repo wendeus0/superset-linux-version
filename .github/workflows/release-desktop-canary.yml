@@ -67,8 +67,55 @@ jobs:
             fi
           fi
 
-  build:
+  linux-smoke:
+    name: Linux smoke gate
     needs: check-changes
+    if: needs.check-changes.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        id: setup-bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.2"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ steps.setup-bun.outputs.bun-revision }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-bun-${{ steps.setup-bun.outputs.bun-revision }}-
+
+      - name: Install dependencies
+        run: bun install --frozen --ignore-scripts
+
+      - name: Install desktop native dependencies
+        working-directory: apps/desktop
+        run: bun run install:deps
+
+      - name: Compile desktop app
+        working-directory: apps/desktop
+        env:
+          SUPERSET_WORKSPACE_NAME: superset
+        run: bun run compile:app
+
+      - name: Validate native runtime invariants
+        working-directory: apps/desktop
+        env:
+          TARGET_PLATFORM: linux
+          TARGET_ARCH: x64
+        run: |
+          bun run copy:native-modules
+          bun run validate:native-runtime
+
+  build:
+    needs: [check-changes, linux-smoke]
     if: needs.check-changes.outputs.should_build == 'true'
     uses: ./.github/workflows/build-desktop.yml
     with:
@@ -81,7 +128,7 @@ jobs:
 
   release:
     name: Update Canary Release
-    needs: [check-changes, build]
+    needs: [check-changes, linux-smoke, build]
     if: needs.check-changes.outputs.should_build == 'true'
     runs-on: ubuntu-latest
 
@@ -109,7 +156,18 @@ jobs:
             if [[ -f "$file" ]]; then
               arch=$(echo "$file" | sed -E 's/.*-([^-]+)\.AppImage$/\1/')
               cp "$file" "Superset-Canary-${arch}.AppImage"
+              if [[ "$arch" == "x86_64" ]]; then
+                cp "$file" "Superset-Canary-x64.AppImage"
+                echo "Created canary copy: Superset-Canary-x64.AppImage"
+              fi
               echo "Created canary copy: Superset-Canary-${arch}.AppImage"
+            fi
+          done
+          for file in *.deb; do
+            if [[ -f "$file" ]]; then
+              arch=$(echo "$file" | sed -E 's/.*_([A-Za-z0-9]+)\.deb$/\1/')
+              cp "$file" "Superset-Canary-${arch}.deb"
+              echo "Created canary copy: Superset-Canary-${arch}.deb"
             fi
           done
           # Prerelease builds may request canary-linux.yml; keep latest-linux.yml as fallback.

@@ -58,7 +58,8 @@ The app checks for updates at launch and every x hours using:
 - **macOS manifest**: `https://github.com/superset-sh/superset/releases/latest/download/latest-mac.yml`
 - **Linux manifest**: `https://github.com/superset-sh/superset/releases/latest/download/latest-linux.yml`
 - **macOS installer**: `https://github.com/superset-sh/superset/releases/latest/download/Superset-arm64.dmg`
-- **Linux installer**: `https://github.com/superset-sh/superset/releases/latest/download/Superset-x64.AppImage`
+- **Linux installer (AppImage)**: `https://github.com/superset-sh/superset/releases/latest/download/Superset-x86_64.AppImage`
+- **Linux installer (.deb)**: `https://github.com/superset-sh/superset/releases/latest/download/Superset-amd64.deb`
 
 The workflow creates stable-named copies (without version) so these URLs always point to the latest build.
 
@@ -83,10 +84,28 @@ Output: `apps/desktop/release/`
 Linux output should include:
 
 - `*.AppImage`
+- `*.deb`
 - `*-linux.yml` (auto-update manifest)
+
+## AUR (`superset-bin`) base workflow
+
+This repository includes a deterministic base flow for AUR package maintenance:
+
+```bash
+# Generate PKGBUILD from template + GitHub release asset checksum
+./packaging/aur/scripts/bump-aur.sh <version>
+
+# Validate generated PKGBUILD
+./packaging/aur/scripts/validate-aur.sh
+```
+
+Notes:
+- The script defaults to `Superset-x86_64.AppImage` from `desktop-v<version>` release tag.
+- Publication to AUR remains manual in this phase (no credential automation).
 
 ## Troubleshooting
 
 - **Linux auto-update not working**: Verify `release/*-linux.yml` is uploaded to the GitHub release
+- **Linux .deb missing from release**: Check `build-desktop.yml` Linux artifact validation step for `.deb`
 - **Build icon warnings/failures**: Add icons under `src/resources/build/icons/` (`icon.icns`, `icon.ico`, optional Linux `.png`)
 - **Native module errors**: Ensure `node-pty` is in externals in both `electron.vite.config.ts` and `electron-builder.ts`
