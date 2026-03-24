@@ -58,7 +58,8 @@ The app checks for updates at launch and every x hours using:
 - **macOS manifest**: `https://github.com/superset-sh/superset/releases/latest/download/latest-mac.yml`
 - **Linux manifest**: `https://github.com/superset-sh/superset/releases/latest/download/latest-linux.yml`
 - **macOS installer**: `https://github.com/superset-sh/superset/releases/latest/download/Superset-arm64.dmg`
-- **Linux installer**: `https://github.com/superset-sh/superset/releases/latest/download/Superset-x64.AppImage`
+- **Linux installer (AppImage)**: `https://github.com/superset-sh/superset/releases/latest/download/Superset-x86_64.AppImage`
+- **Linux installer (.deb)**: `https://github.com/superset-sh/superset/releases/latest/download/Superset-amd64.deb`
 
 The workflow creates stable-named copies (without version) so these URLs always point to the latest build.
 
@@ -83,10 +84,62 @@ Output: `apps/desktop/release/`
 Linux output should include:
 
 - `*.AppImage`
+- `*.deb`
 - `*-linux.yml` (auto-update manifest)
+
+## AUR (`superset-bin`) base workflow
+
+This repository includes a deterministic base flow for AUR package maintenance:
+
+```bash
+# Generate PKGBUILD from template + GitHub release asset checksum
+./packaging/aur/scripts/bump-aur.sh <version>
+
+# Validate generated PKGBUILD
+./packaging/aur/scripts/validate-aur.sh
+```
+
+Notes:
+- The script defaults to `Superset-x86_64.AppImage` from `desktop-v<version>` release tag.
+- Publication to AUR remains manual in this phase (no credential automation).
+
+## Linux smoke suite (reprodutível)
+
+A suíte oficial de smoke Linux está em `apps/desktop/scripts/smoke-linux.sh`.
+
+Wrappers por distro:
+
+```bash
+# Ubuntu profile
+bun run smoke:linux:ubuntu -- --skip-install --ci
+
+# Arch profile
+bun run smoke:linux:arch -- --skip-install --ci
+```
+
+Runner único (com opções):
+
+```bash
+bun run smoke:linux -- --profile ubuntu --skip-install --ci
+bun run smoke:linux -- --profile arch --skip-install --ci
+bun run smoke:linux -- --profile ubuntu --with-package
+```
+
+O smoke valida:
+- compile da app (`compile:app`)
+- cópia de módulos nativos (`copy:native-modules`)
+- invariantes de runtime (`validate:native-runtime`)
+- opcionalmente, presença de AppImage + `.deb` + manifesto Linux (`--with-package`)
+
+## Operação M5 (go-live)
+
+- Fonte única operacional Linux CI/release: `apps/desktop/docs/linux-ci-release-runbook.md`
+- Checklist operacional: `apps/desktop/docs/linux-go-live-checklist.md`
+- Runbook de triagem rápida: `apps/desktop/docs/linux-triage-runbook.md`
 
 ## Troubleshooting
 
 - **Linux auto-update not working**: Verify `release/*-linux.yml` is uploaded to the GitHub release
+- **Linux .deb missing from release**: Check `build-desktop.yml` Linux artifact validation step for `.deb`
 - **Build icon warnings/failures**: Add icons under `src/resources/build/icons/` (`icon.icns`, `icon.ico`, optional Linux `.png`)
 - **Native module errors**: Ensure `node-pty` is in externals in both `electron.vite.config.ts` and `electron-builder.ts`

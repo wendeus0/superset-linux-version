@@ -14,10 +14,10 @@ Estado operacional da sessão e da fase ativa do fork.
 
 ## Fase ativa
 
-1. Tornar o build Linux reproduzível com gate de CI.
-2. Endurecer runtime nativo (`@parcel/watcher`, `libsql`, `ast-grep`).
-3. Consolidar distribuição para Ubuntu e Arch.
-4. Fechar documentação de arquitetura, instalação e troubleshooting.
+1. M4 concluída: UX Linux + documentação final consolidada (RELEASE + runbooks operacionais).
+2. M5 ativa: go-live controlado Linux com checklist formal e validação final de evidências.
+3. Operar gate `linux-smoke` como bloqueio obrigatório para release estável/canary.
+4. Concluir publicação controlada após checklist M5 completo.
 
 ## Backlog macro
 
@@ -35,7 +35,8 @@ Estado operacional da sessão e da fase ativa do fork.
 - App inicia sem crash em Ubuntu e Arch.
 - Terminal integrado abre e executa comando simples.
 - File watcher funciona em workspace real.
-- Manifesto de update Linux é gerado e publicado.
+- Build Linux gera e publica AppImage + `.deb` + manifesto Linux.
+- Smoke Linux passa como gate obrigatório em CI/release.
 - Estratégia oficial de instalação está documentada para Ubuntu e Arch.
 
 ## Riscos e atenção
@@ -43,6 +44,7 @@ Estado operacional da sessão e da fase ativa do fork.
 - Compatibilidade ABI e optional deps em distros diferentes.
 - Regressões em runtime nativo por updates rolling no Arch.
 - Drift com upstream em scripts de build/release.
+- Falso positivo de go-live sem evidência consolidada de checklist M5.
 
 ## Governança operacional
 
