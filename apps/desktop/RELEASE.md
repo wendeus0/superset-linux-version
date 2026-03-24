@@ -133,6 +133,7 @@ O smoke valida:
 
 ## Operação M5 (go-live)
 
+- Fonte única operacional Linux CI/release: `apps/desktop/docs/linux-ci-release-runbook.md`
 - Checklist operacional: `apps/desktop/docs/linux-go-live-checklist.md`
 - Runbook de triagem rápida: `apps/desktop/docs/linux-triage-runbook.md`
 
