@@ -111,3 +111,10 @@ Antes de fechar incidente:
 - [ ] correção validada em smoke Linux
 - [ ] evidência anexada (log/comando)
 - [ ] ação preventiva registrada (doc/workflow/test)
+
+## 6) Regra de atualização documental obrigatória
+
+Quando houver mudança em workflow/script/política de release Linux:
+- Atualizar `apps/desktop/docs/linux-ci-release-runbook.md`
+- Atualizar checklist e runbook afetados
+- Anexar Evidence Pack com links verificáveis

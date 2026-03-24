@@ -74,6 +74,16 @@ Ações de contenção:
 2. abrir incidente interno e registrar falha
 3. cortar nova tag corrigindo pipeline/artefato
 
+## Evidence Pack mínimo (obrigatório)
+
+Para cada release candidata, anexar:
+- URL da run CI/release
+- commit/tag
+- status dos jobs críticos (`linux-smoke`, `linux-critical-regression`, `build`, `release`)
+- comandos locais executados (quando aplicável)
+- lista de artefatos gerados e aliases estáveis
+- responsável pela validação
+
 ## Registro de decisão
 
 Ao concluir o go-live, registrar:
