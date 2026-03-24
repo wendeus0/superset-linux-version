@@ -233,12 +233,16 @@ jobs:
         working-directory: apps/desktop
         run: bun run package -- --publish never --config ${{ inputs.electron_builder_config }}
 
-      - name: Verify Linux AppImage + update manifest exist
+      - name: Verify Linux AppImage + .deb + update manifest exist
         working-directory: apps/desktop
         run: |
           ls -la release
           test -n "$(ls -1 release/*.AppImage 2>/dev/null)" || {
             echo "::error::No AppImage artifact generated in apps/desktop/release"
+            exit 1
+          }
+          test -n "$(ls -1 release/*.deb 2>/dev/null)" || {
+            echo "::error::No .deb artifact generated in apps/desktop/release"
             exit 1
           }
           test -n "$(ls -1 release/*-linux.yml 2>/dev/null)" || {
@@ -251,6 +255,14 @@ jobs:
         with:
           name: ${{ inputs.artifact_prefix }}-linux-appimage
           path: apps/desktop/release/*.AppImage
+          retention-days: ${{ inputs.artifact_retention_days }}
+          if-no-files-found: error
+
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-linux-deb
+          path: apps/desktop/release/*.deb
           retention-days: ${{ inputs.artifact_retention_days }}
           if-no-files-found: error
 

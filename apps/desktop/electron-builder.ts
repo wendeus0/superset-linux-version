@@ -13,7 +13,7 @@ import {
 } from "./runtime-dependencies";
 
 const currentYear = new Date().getFullYear();
-const author = pkg.author?.name ?? pkg.author;
+const author = typeof pkg.author === "string" ? pkg.author : pkg.author.name;
 const productName = pkg.productName;
 const macIconPath = join(pkg.resources, "build/icons/icon.icns");
 const linuxIconPath = join(pkg.resources, "build/icons");
@@ -127,7 +127,7 @@ const config: Configuration = {
 		...(existsSync(linuxIconPath) ? { icon: linuxIconPath } : {}),
 		category: "Utility",
 		synopsis: pkg.description,
-		target: ["AppImage"],
+		target: ["AppImage", "deb"],
 		artifactName: `superset-\${version}-\${arch}.\${ext}`,
 	},
 

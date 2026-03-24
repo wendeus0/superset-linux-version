@@ -14,10 +14,10 @@ Estado operacional da sessão e da fase ativa do fork.
 
 ## Fase ativa
 
-1. Tornar o build Linux reproduzível com gate de CI.
-2. Endurecer runtime nativo (`@parcel/watcher`, `libsql`, `ast-grep`).
-3. Consolidar distribuição para Ubuntu e Arch.
-4. Fechar documentação de arquitetura, instalação e troubleshooting.
+1. Consolidar distribuição Linux oficial com AppImage + `.deb`.
+2. Instituir smoke gate Linux obrigatório em CI e no pipeline de release.
+3. Estruturar base AUR (`superset-bin`) com scripts de bump/checksum/validação.
+4. Fechar documentação operacional (SPEC/ADR/RELEASE) e riscos residuais.
 
 ## Backlog macro
 
@@ -35,7 +35,8 @@ Estado operacional da sessão e da fase ativa do fork.
 - App inicia sem crash em Ubuntu e Arch.
 - Terminal integrado abre e executa comando simples.
 - File watcher funciona em workspace real.
-- Manifesto de update Linux é gerado e publicado.
+- Build Linux gera e publica AppImage + `.deb` + manifesto Linux.
+- Smoke Linux passa como gate obrigatório em CI/release.
 - Estratégia oficial de instalação está documentada para Ubuntu e Arch.
 
 ## Riscos e atenção
