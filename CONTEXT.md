@@ -14,10 +14,10 @@ Estado operacional da sessão e da fase ativa do fork.
 
 ## Fase ativa
 
-1. Consolidar distribuição Linux oficial com AppImage + `.deb`.
-2. Instituir smoke gate Linux obrigatório em CI e no pipeline de release.
-3. Estruturar base AUR (`superset-bin`) com scripts de bump/checksum/validação.
-4. Fechar documentação operacional (SPEC/ADR/RELEASE) e riscos residuais.
+1. M4 concluída: UX Linux + documentação final consolidada (RELEASE + runbooks operacionais).
+2. M5 ativa: go-live controlado Linux com checklist formal e validação final de evidências.
+3. Operar gate `linux-smoke` como bloqueio obrigatório para release estável/canary.
+4. Concluir publicação controlada após checklist M5 completo.
 
 ## Backlog macro
 
@@ -44,6 +44,7 @@ Estado operacional da sessão e da fase ativa do fork.
 - Compatibilidade ABI e optional deps em distros diferentes.
 - Regressões em runtime nativo por updates rolling no Arch.
 - Drift com upstream em scripts de build/release.
+- Falso positivo de go-live sem evidência consolidada de checklist M5.
 
 ## Governança operacional
 

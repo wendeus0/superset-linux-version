@@ -29,7 +29,10 @@ O problema alvo é reduzir risco de regressão em runtime Linux e remover lacuna
 - [x] CI possui smoke gate Linux obrigatório antes da etapa de release.
 - [x] Existe base AUR em repositório com template, script de bump/checksum e validação local.
 - [x] `apps/desktop/RELEASE.md` documenta fluxo Linux oficial (AppImage + `.deb` + AUR).
-- [x] `CONTEXT.md` reflete esta macrofrente como fase ativa e registra riscos residuais.
+- [x] `apps/desktop/scripts/smoke-linux.sh` estabelece suíte reproduzível com wrappers Ubuntu/Arch.
+- [x] `apps/desktop/docs/linux-go-live-checklist.md` define checklist formal de M5.
+- [x] `apps/desktop/docs/linux-triage-runbook.md` define triagem rápida operacional.
+- [x] `CONTEXT.md` reflete transição de M4 concluída para M5 ativa e riscos residuais.
 
 ## 4. Plano técnico
 
