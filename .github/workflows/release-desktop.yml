@@ -45,20 +45,9 @@ jobs:
         working-directory: apps/desktop
         run: bun run install:deps
 
-      - name: Compile desktop app
+      - name: Run Linux smoke suite (Ubuntu profile)
         working-directory: apps/desktop
-        env:
-          SUPERSET_WORKSPACE_NAME: superset
-        run: bun run compile:app
-
-      - name: Validate native runtime invariants
-        working-directory: apps/desktop
-        env:
-          TARGET_PLATFORM: linux
-          TARGET_ARCH: x64
-        run: |
-          bun run copy:native-modules
-          bun run validate:native-runtime
+        run: bun run smoke:linux -- --profile ubuntu --skip-install --ci
 
   build:
     needs: linux-smoke
