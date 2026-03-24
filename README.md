@@ -2,11 +2,12 @@
 
 <img width="full" alt="Superset" src="apps/marketing/public/images/readme-hero.png" />
 
-### The Code Editor for AI Agents
+### The Code Editor for AI Agents — Linux Fork
 
 [![GitHub stars](https://img.shields.io/github/stars/superset-sh/superset?style=flat&logo=github)](https://github.com/superset-sh/superset/stargazers)
 [![GitHub release](https://img.shields.io/github/v/release/superset-sh/superset?style=flat&logo=github)](https://github.com/superset-sh/superset/releases)
 [![License](https://img.shields.io/github/license/superset-sh/superset?style=flat)](LICENSE.md)
+[![Linux Build](https://img.shields.io/badge/Linux-AppImage%20%7C%20.deb%20%7C%20AUR-1793D1?logo=linux)](.#linux-installation)
 [![Twitter](https://img.shields.io/badge/@superset__sh-555?logo=x)](https://x.com/superset_sh)
 [![Discord](https://img.shields.io/badge/Discord-555?logo=discord)](https://discord.gg/cZeD9WYcV7)
 
@@ -15,12 +16,13 @@
 Orchestrate swarms of Claude Code, Codex, and more in parallel.<br />
 Works with any CLI agent. Built for local worktree-based development.
 
-<br />
-
-[**Download for macOS**](https://github.com/superset-sh/superset/releases/latest) &nbsp;&bull;&nbsp; [Documentation](https://docs.superset.sh) &nbsp;&bull;&nbsp; [Changelog](https://github.com/superset-sh/superset/releases) &nbsp;&bull;&nbsp; [Discord](https://discord.gg/cZeD9WYcV7)
+> **Linux Port:** This fork brings first-class Linux support (Ubuntu 22.04/24.04, Arch Linux) to Superset Desktop with AppImage, `.deb`, and AUR packages.
 
 <br />
 
+[**Download for Linux**](#linux-installation) &nbsp;&bull;&nbsp; [**Download for macOS**](https://github.com/superset-sh/superset/releases/latest) &nbsp;&bull;&nbsp; [Documentation](https://docs.superset.sh) &nbsp;&bull;&nbsp; [Changelog](https://github.com/superset-sh/superset/releases) &nbsp;&bull;&nbsp; [Discord](https://discord.gg/cZeD9WYcV7)
+
+<br />
 
 </div>
 
@@ -38,49 +40,61 @@ Wait less, ship more.
 
 ## Features
 
-| Feature | Description |
-|:--------|:------------|
-| **Parallel Execution** | Run 10+ coding agents simultaneously on your machine |
-| **Worktree Isolation** | Each task gets its own branch and working directory |
-| **Agent Monitoring** | Track agent status and get notified when changes are ready |
-| **Built-in Diff Viewer** | Inspect and edit agent changes without leaving the app |
-| **Workspace Presets** | Automate env setup, dependency installation, and more |
-| **Universal Compatibility** | Works with any CLI agent that runs in a terminal |
-| **Quick Context Switching** | Jump between tasks as they need your attention |
-| **IDE Integration** | Open any workspace in your favorite editor with one click |
+| Feature                     | Description                                                |
+| :-------------------------- | :--------------------------------------------------------- |
+| **Parallel Execution**      | Run 10+ coding agents simultaneously on your machine       |
+| **Worktree Isolation**      | Each task gets its own branch and working directory        |
+| **Agent Monitoring**        | Track agent status and get notified when changes are ready |
+| **Built-in Diff Viewer**    | Inspect and edit agent changes without leaving the app     |
+| **Workspace Presets**       | Automate env setup, dependency installation, and more      |
+| **Universal Compatibility** | Works with any CLI agent that runs in a terminal           |
+| **Quick Context Switching** | Jump between tasks as they need your attention             |
+| **IDE Integration**         | Open any workspace in your favorite editor with one click  |
 
 ## Supported Agents
 
 Superset works with any CLI-based coding agent, including:
 
-| Agent | Status |
-|:------|:-------|
-| [Claude Code](https://github.com/anthropics/claude-code) | Fully supported |
-| [OpenAI Codex CLI](https://github.com/openai/codex) | Fully supported |
-| [Cursor Agent](https://docs.cursor.com/agent) | Fully supported |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Fully supported |
-| [GitHub Copilot](https://github.com/features/copilot) | Fully supported |
-| [OpenCode](https://github.com/opencode-ai/opencode) | Fully supported |
+| Agent                                                                     | Status          |
+| :------------------------------------------------------------------------ | :-------------- |
+| [Claude Code](https://github.com/anthropics/claude-code)                  | Fully supported |
+| [OpenAI Codex CLI](https://github.com/openai/codex)                       | Fully supported |
+| [Cursor Agent](https://docs.cursor.com/agent)                             | Fully supported |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli)                 | Fully supported |
+| [GitHub Copilot](https://github.com/features/copilot)                     | Fully supported |
+| [OpenCode](https://github.com/opencode-ai/opencode)                       | Fully supported |
 | [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) | Fully supported |
-| Any CLI agent | Will work |
+| Any CLI agent                                                             | Will work       |
 
 If it runs in a terminal, it runs on Superset
 
 ## Requirements
 
-| Requirement | Details |
-|:------------|:--------|
-| **OS** | macOS (Windows/Linux untested) |
-| **Runtime** | [Bun](https://bun.sh/) v1.0+ |
-| **Version Control** | Git 2.20+ |
-| **GitHub CLI** | [gh](https://cli.github.com/) |
-| **Caddy** | [caddy](https://caddyserver.com/docs/install) (for dev server) |
+| Requirement         | Details                                                            |
+| :------------------ | :----------------------------------------------------------------- |
+| **OS**              | **Linux:** Ubuntu 22.04/24.04, Arch Linux &nbsp;\|&nbsp; **macOS** |
+| **Runtime**         | [Bun](https://bun.sh/) v1.0+                                       |
+| **Version Control** | Git 2.20+                                                          |
+| **GitHub CLI**      | [gh](https://cli.github.com/)                                      |
+| **Caddy**           | [caddy](https://caddyserver.com/docs/install) (for dev server)     |
+
+## Linux Installation
+
+Choose your preferred distribution:
+
+| Distribution      | Package  | Install Command                                                                                                      |
+| :---------------- | :------- | :------------------------------------------------------------------------------------------------------------------- |
+| **Ubuntu/Debian** | `.deb`   | Download from [Releases](https://github.com/superset-sh/superset/releases) and run `sudo dpkg -i superset-*.deb`     |
+| **Any Linux**     | AppImage | Download from [Releases](https://github.com/superset-sh/superset/releases), `chmod +x superset-*.AppImage`, then run |
+| **Arch Linux**    | AUR      | `yay -S superset-bin` or `paru -S superset-bin`                                                                      |
+
+> **Note:** This fork maintains Linux as a first-class platform with CI smoke gates for Ubuntu and Arch Linux.
 
 ## Getting Started
 
 ### Quick Start (Pre-built)
 
-**[Download Superset for macOS](https://github.com/superset-sh/superset/releases/latest)**
+**[Download for Linux](#linux-installation)** &nbsp;&bull;&nbsp; **[Download for macOS](https://github.com/superset-sh/superset/releases/latest)**
 
 ### Build from Source
 
@@ -94,15 +108,19 @@ git clone https://github.com/superset-sh/superset.git
 cd superset
 ```
 
+> **For this Linux fork:** Use your own fork URL if you've forked the repository for Linux development.
+
 **2. Set up environment variables** (choose one):
 
 Option A: Full setup
+
 ```bash
 cp .env.example .env
 # Edit .env and fill in the values
 ```
 
 Option B: Skip env validation (for quick local testing)
+
 ```bash
 cp .env.example .env
 echo 'SKIP_ENV_VALIDATION=1' >> .env
@@ -111,7 +129,11 @@ echo 'SKIP_ENV_VALIDATION=1' >> .env
 **3. Set up Caddy** (reverse proxy for Electric SQL streams):
 
 ```bash
-# Install caddy: brew install caddy (macOS) or see https://caddyserver.com/docs/install
+# Install caddy:
+# macOS: brew install caddy
+# Ubuntu/Debian: sudo apt install caddy
+# Arch: sudo pacman -S caddy
+# Or see https://caddyserver.com/docs/install
 cp Caddyfile.example Caddyfile
 ```
 
@@ -125,9 +147,23 @@ bun run dev
 **5. Build the desktop app**
 
 ```bash
+# Build for current platform
 bun run build
-open apps/desktop/release
+
+# Build specifically for Linux (generates AppImage + .deb)
+bun run build:linux
+
+# Open release folder
+# macOS: open apps/desktop/release
+# Linux: xdg-open apps/desktop/release
 ```
+
+**Linux Build Artifacts:**
+
+- `apps/desktop/release/*.AppImage` — Portable AppImage for any Linux distribution
+- `apps/desktop/release/*.deb` — Debian package for Ubuntu/Debian
+
+> **Note:** Linux builds require native dependencies (node-pty, better-sqlite3, libsql) to be compiled for the target platform. The build process handles this automatically.
 
 </details>
 
@@ -137,35 +173,35 @@ All shortcuts are customizable via **Settings > Keyboard Shortcuts** (`⌘/`). S
 
 ### Workspace Navigation
 
-| Shortcut | Action |
-|:---------|:-------|
-| `⌘1-9` | Switch to workspace 1-9 |
-| `⌘⌥↑/↓` | Previous/next workspace |
-| `⌘N` | New workspace |
-| `⌘⇧N` | Quick create workspace |
-| `⌘⇧O` | Open project |
+| Shortcut | Action                  |
+| :------- | :---------------------- |
+| `⌘1-9`   | Switch to workspace 1-9 |
+| `⌘⌥↑/↓`  | Previous/next workspace |
+| `⌘N`     | New workspace           |
+| `⌘⇧N`    | Quick create workspace  |
+| `⌘⇧O`    | Open project            |
 
 ### Terminal
 
-| Shortcut | Action |
-|:---------|:-------|
-| `⌘T` | New tab |
-| `⌘W` | Close pane/terminal |
-| `⌘D` | Split right |
-| `⌘⇧D` | Split down |
-| `⌘K` | Clear terminal |
-| `⌘F` | Find in terminal |
-| `⌘⌥←/→` | Previous/next tab |
-| `Ctrl+1-9` | Open preset 1-9 |
+| Shortcut   | Action              |
+| :--------- | :------------------ |
+| `⌘T`       | New tab             |
+| `⌘W`       | Close pane/terminal |
+| `⌘D`       | Split right         |
+| `⌘⇧D`      | Split down          |
+| `⌘K`       | Clear terminal      |
+| `⌘F`       | Find in terminal    |
+| `⌘⌥←/→`    | Previous/next tab   |
+| `Ctrl+1-9` | Open preset 1-9     |
 
 ### Layout
 
-| Shortcut | Action |
-|:---------|:-------|
-| `⌘B` | Toggle workspaces sidebar |
-| `⌘L` | Toggle changes panel |
-| `⌘O` | Open in external app |
-| `⌘⇧C` | Copy path |
+| Shortcut | Action                    |
+| :------- | :------------------------ |
+| `⌘B`     | Toggle workspaces sidebar |
+| `⌘L`     | Toggle changes panel      |
+| `⌘O`     | Open in external app      |
+| `⌘⇧C`    | Copy path                 |
 
 ## Configuration
 
@@ -178,9 +214,9 @@ Configure workspace setup and teardown in `.superset/config.json`. See [full doc
 }
 ```
 
-| Option | Type | Description |
-|:-------|:-----|:------------|
-| `setup` | `string[]` | Commands to run when creating a workspace |
+| Option     | Type       | Description                               |
+| :--------- | :--------- | :---------------------------------------- |
+| `setup`    | `string[]` | Commands to run when creating a workspace |
 | `teardown` | `string[]` | Commands to run when deleting a workspace |
 
 ### Example setup script
@@ -200,6 +236,7 @@ echo "Workspace ready!"
 ```
 
 Scripts have access to environment variables:
+
 - `SUPERSET_WORKSPACE_NAME` — Name of the workspace
 - `SUPERSET_ROOT_PATH` — Path to the main repository
 
@@ -226,6 +263,33 @@ For the internal `mastracode` fork/bundle workflow used by this repo, see [docs/
 
 - **Source Available** — Full source is available on GitHub under Elastic License 2.0 (ELv2).
 - **Explicit Connections** — You choose which agents, providers, and integrations to connect.
+
+## Linux Support
+
+This fork maintains **Linux as a first-class platform**, alongside macOS:
+
+| Feature                | Status         | Details                                      |
+| :--------------------- | :------------- | :------------------------------------------- |
+| **Ubuntu 22.04/24.04** | ✅ Supported   | `.deb` packages and AppImage                 |
+| **Arch Linux**         | ✅ Supported   | AUR package `superset-bin` and AppImage      |
+| **CI Smoke Tests**     | ✅ Active      | Automated Linux smoke gate in GitHub Actions |
+| **Build Artifacts**    | ✅ Automated   | AppImage + `.deb` generated on release       |
+| **Process Metrics**    | ⚠️ In Progress | Feature parity with macOS in development     |
+
+### Linux-Specific Development
+
+```bash
+# Run Linux smoke tests locally
+bun run smoke:linux -- --profile ubuntu
+
+# Run smoke tests for Arch
+bun run smoke:linux -- --profile arch
+
+# Full release build for Linux
+bun run build:linux
+```
+
+See `docs/architecture/SDD.md` for detailed Linux architecture decisions and `packaging/aur/` for Arch Linux packaging.
 
 ## Contributing
 
