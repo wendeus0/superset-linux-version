@@ -127,6 +127,12 @@ else
   log "Skipping install steps (--skip-install)"
 fi
 
+log "Generating file icons manifest"
+(
+  cd "$DESKTOP_DIR"
+  "${BUN_BIN}" run generate:icons
+)
+
 log "Compiling desktop app"
 (
   cd "$DESKTOP_DIR"
