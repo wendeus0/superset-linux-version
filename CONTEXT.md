@@ -14,12 +14,18 @@ Estado operacional da sessão e da fase ativa do fork.
 
 ## Fase ativa
 
-**M5 concluída (2026-03-25).** Backlog macro M0–M5 completo. Linux é plataforma de primeira classe com gate de smoke obrigatório em CI.
+**M6 concluída (2026-03-26).** Frente de otimização de memória completa (Fases 1–3).
+
+Resumo das três fases:
+- **Fase 1**: WebView idle unloading, terminal scrollback cap, terminal idle session culling, React Query cache limits.
+- **Fase 2**: MediaQuery memory leak fix, chat polling split (display vs. messages), memory pressure UI (Force Cleanup), DevTools lazy-load.
+- **Fase 3**: Chat message display cap (100 msgs + "Load earlier"), terminal per-session RSS limit (512 MB via process-tree sweep).
 
 Próximas frentes candidatas:
+- **3.2** (deferred): Chat virtualization com `@tanstack/react-virtual` para listas muito longas.
 - `fix/dev-cors-workaround` — isolar e avaliar merge das mudanças CORS de desenvolvimento.
 - Contribuição de patches locais de volta ao upstream (`superset-sh/superset`).
-- Automação AUR com credenciais reais (fora do escopo M5; requer avaliação separada).
+- Automação AUR com credenciais reais (fora do escopo M5/M6; requer avaliação separada).
 
 ## Backlog macro
 
@@ -31,6 +37,7 @@ Próximas frentes candidatas:
 | M3 | Distribuição (`.deb` + AUR) | ✅ |
 | M4 | UX Linux + documentação final | ✅ |
 | M5 | Go-live controlado | ✅ |
+| M6 | Otimização de memória (Fases 1–3) | ✅ |
 
 ## Critérios de aceite Linux (resumo)
 

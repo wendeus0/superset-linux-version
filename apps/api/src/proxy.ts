@@ -13,7 +13,9 @@ const desktopDevOrigins =
 		: [];
 
 const extraOrigins = env.CORS_EXTRA_ORIGINS
-	? env.CORS_EXTRA_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+	? env.CORS_EXTRA_ORIGINS.split(",")
+			.map((o) => o.trim())
+			.filter(Boolean)
 	: [];
 
 function getAllowedOrigins(deploymentOrigin: string) {
