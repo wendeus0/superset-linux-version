@@ -12,6 +12,10 @@ const desktopDevOrigins =
 			]
 		: [];
 
+const extraOrigins = env.CORS_EXTRA_ORIGINS
+	? env.CORS_EXTRA_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+	: [];
+
 function getAllowedOrigins(deploymentOrigin: string) {
 	return [
 		env.NEXT_PUBLIC_WEB_URL,
@@ -19,6 +23,7 @@ function getAllowedOrigins(deploymentOrigin: string) {
 		env.NEXT_PUBLIC_DESKTOP_URL,
 		...getTrustedVercelPreviewOrigins(deploymentOrigin),
 		...desktopDevOrigins,
+		...extraOrigins,
 	].filter(Boolean);
 }
 
