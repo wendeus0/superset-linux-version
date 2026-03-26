@@ -98,14 +98,12 @@ describe("TerminalHost.runRssSweep", () => {
 	beforeAll(async () => {
 		// Set up spies on the module namespace BEFORE TerminalHost is imported.
 		// Bun's ES live bindings ensure TerminalHost sees the spy implementations.
-		const processTree = await import(
-			"../lib/resource-metrics/process-tree"
+		const processTree = await import("../lib/resource-metrics/process-tree");
+		spyOn(processTree, "captureProcessSnapshot").mockImplementation((...args) =>
+			mockCaptureProcessSnapshot(...args),
 		);
-		spyOn(processTree, "captureProcessSnapshot").mockImplementation(
-			(...args) => mockCaptureProcessSnapshot(...args),
-		);
-		spyOn(processTree, "getSubtreeResources").mockImplementation(
-			(...args) => mockGetSubtreeResources(...args),
+		spyOn(processTree, "getSubtreeResources").mockImplementation((...args) =>
+			mockGetSubtreeResources(...args),
 		);
 		({ TerminalHost } = await import("./terminal-host"));
 	});
