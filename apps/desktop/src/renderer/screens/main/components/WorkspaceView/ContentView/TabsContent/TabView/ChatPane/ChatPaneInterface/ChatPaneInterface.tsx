@@ -268,6 +268,8 @@ export function ChatPaneInterface({
 	const {
 		commands,
 		messages,
+		hasMoreMessages = false,
+		loadAllMessages,
 		currentMessage,
 		isRunning = false,
 		isConversationLoading = false,
@@ -995,6 +997,8 @@ export function ChatPaneInterface({
 			<div className="flex h-full flex-col bg-background">
 				<ChatMessageList
 					messages={visibleMessages}
+					hasMoreMessages={hasMoreMessages}
+					onLoadAllMessages={loadAllMessages}
 					isFocused={isFocused}
 					isRunning={canAbort}
 					isConversationLoading={isConversationLoading}

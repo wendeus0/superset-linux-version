@@ -34,6 +34,8 @@ import {
 
 export function ChatMessageList({
 	messages,
+	hasMoreMessages,
+	onLoadAllMessages,
 	isFocused,
 	isRunning,
 	isConversationLoading,
@@ -174,6 +176,17 @@ export function ChatMessageList({
 		<Conversation className="flex-1">
 			<ConversationContent className="mx-auto w-full max-w-[680px] py-6">
 				<div ref={messageListRef} className="flex flex-col gap-6">
+					{hasMoreMessages && onLoadAllMessages && (
+						<div className="flex justify-center">
+							<button
+								type="button"
+								onClick={onLoadAllMessages}
+								className="text-xs text-muted-foreground hover:text-foreground border border-border rounded-md px-3 py-1.5 transition-colors hover:bg-muted"
+							>
+								Load earlier messages
+							</button>
+						</div>
+					)}
 					{shouldShowConversationLoading ? (
 						<ConversationLoadingState />
 					) : shouldShowEmptyState ? (

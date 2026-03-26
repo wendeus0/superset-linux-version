@@ -9,6 +9,10 @@
  */
 
 import type { Socket } from "node:net";
+import {
+	captureProcessSnapshot,
+	getSubtreeResources,
+} from "../lib/resource-metrics/process-tree";
 import { TerminalAttachCanceledError } from "../lib/terminal/errors";
 import type {
 	CancelCreateOrAttachRequest,
@@ -38,6 +42,10 @@ const SPAWN_READY_TIMEOUT_MS = 5000;
 /** Auto-kill idle sessions with no attached clients after this duration */
 const IDLE_SESSION_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 const IDLE_SWEEP_INTERVAL_MS = 10 * 60 * 1000; // sweep every 10 minutes
+
+/** Kill sessions whose process tree RSS exceeds this threshold */
+const MAX_SESSION_RSS_BYTES = 512 * 1024 * 1024; // 512 MB
+const RSS_SWEEP_INTERVAL_MS = 5 * 60 * 1000; // check every 5 minutes
 
 interface PendingAttach {
 	requestId: string;
@@ -77,6 +85,7 @@ export class TerminalHost {
 	private pendingAttaches: Map<string, PendingAttach> = new Map();
 	private spawnLimiter = new Semaphore(MAX_CONCURRENT_SPAWNS);
 	private idleSweepTimer: NodeJS.Timeout | null = null;
+	private rssSweepTimer: NodeJS.Timeout | null = null;
 	private onUnattachedExit?: (event: {
 		sessionId: string;
 		exitCode: number;
@@ -94,6 +103,7 @@ export class TerminalHost {
 	} = {}) {
 		this.onUnattachedExit = onUnattachedExit;
 		this.startIdleSweep();
+		this.startRssSweep();
 	}
 
 	private startIdleSweep(): void {
@@ -118,6 +128,45 @@ export class TerminalHost {
 		if (this.idleSweepTimer) {
 			clearInterval(this.idleSweepTimer);
 			this.idleSweepTimer = null;
+		}
+	}
+
+	private startRssSweep(): void {
+		this.rssSweepTimer = setInterval(() => {
+			void this.runRssSweep();
+		}, RSS_SWEEP_INTERVAL_MS);
+	}
+
+	private stopRssSweep(): void {
+		if (this.rssSweepTimer) {
+			clearInterval(this.rssSweepTimer);
+			this.rssSweepTimer = null;
+		}
+	}
+
+	private async runRssSweep(): Promise<void> {
+		const sessionsWithPid = Array.from(this.sessions.values()).filter(
+			(s) => s.isAttachable && s.pid !== null,
+		);
+		if (sessionsWithPid.length === 0) return;
+
+		let snapshot;
+		try {
+			snapshot = await captureProcessSnapshot();
+		} catch {
+			return; // ps/wmic unavailable — skip this cycle
+		}
+
+		for (const session of sessionsWithPid) {
+			const pid = session.pid;
+			if (pid === null) continue;
+			const { memory } = getSubtreeResources(snapshot, pid);
+			if (memory > MAX_SESSION_RSS_BYTES) {
+				console.warn(
+					`[TerminalHost] Killing session ${session.sessionId} — RSS ${Math.round(memory / 1024 / 1024)} MB exceeds ${Math.round(MAX_SESSION_RSS_BYTES / 1024 / 1024)} MB limit`,
+				);
+				this.kill({ sessionId: session.sessionId, deleteHistory: false });
+			}
 		}
 	}
 
@@ -414,6 +463,7 @@ export class TerminalHost {
 
 	async dispose(): Promise<void> {
 		this.stopIdleSweep();
+		this.stopRssSweep();
 
 		for (const pendingAttach of this.pendingAttaches.values()) {
 			pendingAttach.abortController.abort();
