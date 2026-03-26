@@ -27,6 +27,7 @@ const mockGetSubtreeResources = mock(
 mock.module("../lib/resource-metrics/process-tree", () => ({
 	captureProcessSnapshot: mockCaptureProcessSnapshot,
 	getSubtreeResources: mockGetSubtreeResources,
+	getSubtreePids: (_snap: unknown, _pid: number): number[] => [],
 }));
 
 // Dynamic import ensures the mocked module is used.
@@ -57,6 +58,24 @@ function makeFakeSession(
 }
 
 // ---------------------------------------------------------------------------
+// Private-member access helper (avoids repeated casts in each test)
+// ---------------------------------------------------------------------------
+
+type FakeSession = ReturnType<typeof makeFakeSession>;
+
+type HostInternal = {
+	stopIdleSweep: () => void;
+	stopRssSweep: () => void;
+	kill: ReturnType<typeof mock>;
+	sessions: Map<string, FakeSession>;
+	runRssSweep: () => Promise<void>;
+};
+
+function internal(h: InstanceType<typeof TerminalHost>): HostInternal {
+	return h as unknown as HostInternal;
+}
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
@@ -80,10 +99,10 @@ describe("TerminalHost.runRssSweep", () => {
 		}));
 		host = new TerminalHost();
 		// Stop background timers immediately — we drive sweep manually.
-		(host as any).stopIdleSweep();
-		(host as any).stopRssSweep();
+		internal(host).stopIdleSweep();
+		internal(host).stopRssSweep();
 		// Stub out `kill` so fake sessions don't trigger kill-timers.
-		(host as any).kill = mock(() => ({ success: true }));
+		internal(host).kill = mock(() => ({ success: true }));
 	});
 
 	afterEach(async () => {
@@ -92,9 +111,9 @@ describe("TerminalHost.runRssSweep", () => {
 
 	it("skips captureProcessSnapshot when no session has a PID", async () => {
 		const s = makeFakeSession("s-nopid", null);
-		(host as any).sessions.set("s-nopid", s);
+		internal(host).sessions.set("s-nopid", s);
 
-		await (host as any).runRssSweep();
+		await internal(host).runRssSweep();
 
 		expect(mockCaptureProcessSnapshot).not.toHaveBeenCalled();
 	});
@@ -105,11 +124,11 @@ describe("TerminalHost.runRssSweep", () => {
 		);
 
 		const s = makeFakeSession("s-psfail", 1001);
-		(host as any).sessions.set("s-psfail", s);
+		internal(host).sessions.set("s-psfail", s);
 
 		// Must resolve, not throw.
-		await expect((host as any).runRssSweep()).resolves.toBeUndefined();
-		expect((host as any).kill).not.toHaveBeenCalled();
+		await expect(internal(host).runRssSweep()).resolves.toBeUndefined();
+		expect(internal(host).kill).not.toHaveBeenCalled();
 	});
 
 	it("kills a session whose RSS exceeds 512 MB", async () => {
@@ -120,11 +139,11 @@ describe("TerminalHost.runRssSweep", () => {
 		}));
 
 		const s = makeFakeSession("s-heavy", 1002);
-		(host as any).sessions.set("s-heavy", s);
+		internal(host).sessions.set("s-heavy", s);
 
-		await (host as any).runRssSweep();
+		await internal(host).runRssSweep();
 
-		expect((host as any).kill).toHaveBeenCalledWith({
+		expect(internal(host).kill).toHaveBeenCalledWith({
 			sessionId: "s-heavy",
 			deleteHistory: false,
 		});
@@ -138,11 +157,11 @@ describe("TerminalHost.runRssSweep", () => {
 		}));
 
 		const s = makeFakeSession("s-ok", 1003);
-		(host as any).sessions.set("s-ok", s);
+		internal(host).sessions.set("s-ok", s);
 
-		await (host as any).runRssSweep();
+		await internal(host).runRssSweep();
 
-		expect((host as any).kill).not.toHaveBeenCalled();
+		expect(internal(host).kill).not.toHaveBeenCalled();
 	});
 
 	it("skips sessions that are not attachable", async () => {
@@ -154,12 +173,12 @@ describe("TerminalHost.runRssSweep", () => {
 
 		// isAttachable = false → should be filtered before captureProcessSnapshot
 		const s = makeFakeSession("s-dead", 1004, false);
-		(host as any).sessions.set("s-dead", s);
+		internal(host).sessions.set("s-dead", s);
 
-		await (host as any).runRssSweep();
+		await internal(host).runRssSweep();
 
 		expect(mockCaptureProcessSnapshot).not.toHaveBeenCalled();
-		expect((host as any).kill).not.toHaveBeenCalled();
+		expect(internal(host).kill).not.toHaveBeenCalled();
 	});
 
 	it("only kills over-limit sessions when mixed with healthy ones", async () => {
@@ -173,13 +192,13 @@ describe("TerminalHost.runRssSweep", () => {
 
 		const heavy = makeFakeSession("s-heavy2", 2001);
 		const light = makeFakeSession("s-light", 2002);
-		(host as any).sessions.set("s-heavy2", heavy);
-		(host as any).sessions.set("s-light", light);
+		internal(host).sessions.set("s-heavy2", heavy);
+		internal(host).sessions.set("s-light", light);
 
-		await (host as any).runRssSweep();
+		await internal(host).runRssSweep();
 
-		expect((host as any).kill).toHaveBeenCalledTimes(1);
-		expect((host as any).kill).toHaveBeenCalledWith({
+		expect(internal(host).kill).toHaveBeenCalledTimes(1);
+		expect(internal(host).kill).toHaveBeenCalledWith({
 			sessionId: "s-heavy2",
 			deleteHistory: false,
 		});
