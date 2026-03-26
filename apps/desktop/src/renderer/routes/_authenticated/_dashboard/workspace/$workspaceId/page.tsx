@@ -413,7 +413,7 @@ function WorkspacePage() {
 	);
 
 	// Open PR shortcut (⌘⇧P)
-	const { pr } = usePRStatus({ workspaceId });
+	const { pr } = usePRStatus({ workspaceId, surface: "workspace-page" });
 	const { createOrOpenPR } = useCreateOrOpenPR({
 		worktreePath: workspace?.worktreePath,
 	});
