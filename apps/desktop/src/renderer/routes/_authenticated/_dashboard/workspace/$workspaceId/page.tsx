@@ -1,9 +1,10 @@
 import type { ExternalApp } from "@superset/local-db";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useCopyToClipboard } from "renderer/hooks/useCopyToClipboard";
 import { useFileOpenMode } from "renderer/hooks/useFileOpenMode";
 import { electronTrpc } from "renderer/lib/electron-trpc";
+import { electronQueryClient } from "renderer/providers/ElectronTRPCProvider/ElectronTRPCProvider";
 import { getWorkspaceDisplayName } from "renderer/lib/getWorkspaceDisplayName";
 import { electronTrpcClient as trpcClient } from "renderer/lib/trpc-client";
 import { usePresets } from "renderer/react-query/presets";
@@ -88,6 +89,19 @@ export const Route = createFileRoute(
 
 function WorkspacePage() {
 	const { workspaceId } = Route.useParams();
+
+	// Invalidate stale queries when navigating between workspaces
+	const prevWorkspaceIdRef = useRef<string | null>(null);
+	useEffect(() => {
+		if (
+			prevWorkspaceIdRef.current !== null &&
+			prevWorkspaceIdRef.current !== workspaceId
+		) {
+			void electronQueryClient.invalidateQueries();
+		}
+		prevWorkspaceIdRef.current = workspaceId;
+	}, [workspaceId]);
+
 	const { data: workspace } = electronTrpc.workspaces.get.useQuery({
 		id: workspaceId,
 	});

@@ -1934,6 +1934,20 @@ export const useTabsStore = create<TabsStore>()(
 					});
 				},
 
+				suspendBrowserPane: (paneId) => {
+					const state = get();
+					const pane = state.panes[paneId];
+					if (!pane || pane.type !== "webview") return;
+					set({ panes: { ...state.panes, [paneId]: { ...pane, suspended: true } } });
+				},
+
+				resumeBrowserPane: (paneId) => {
+					const state = get();
+					const pane = state.panes[paneId];
+					if (!pane) return;
+					set({ panes: { ...state.panes, [paneId]: { ...pane, suspended: false } } });
+				},
+
 				openDevToolsPane: (tabId, browserPaneId, path) => {
 					const state = get();
 					const tab = state.tabs.find((t) => t.id === tabId);

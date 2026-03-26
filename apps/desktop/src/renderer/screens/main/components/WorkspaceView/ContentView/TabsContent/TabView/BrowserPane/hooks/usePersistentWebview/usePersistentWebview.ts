@@ -9,6 +9,8 @@ import { useTabsStore } from "renderer/stores/tabs/store";
 const webviewRegistry = new Map<string, Electron.WebviewTag>();
 /** Tracks paneId → last-registered webContentsId so we can re-register if it changes. */
 const registeredWebContentsIds = new Map<string, number>();
+/** Tracks paneId → timestamp of last time the webview was visible (moved to hidden container). */
+export const lastActiveTimestamps = new Map<string, number>();
 let hiddenContainer: HTMLDivElement | null = null;
 
 function getHiddenContainer(): HTMLDivElement {
@@ -64,6 +66,7 @@ export function destroyPersistentWebview(paneId: string): void {
 		webviewRegistry.delete(paneId);
 	}
 	registeredWebContentsIds.delete(paneId);
+	lastActiveTimestamps.delete(paneId);
 }
 
 // ---------------------------------------------------------------------------
@@ -102,7 +105,9 @@ export function usePersistentWebview({
 	const initialUrlRef = useRef(initialUrl);
 
 	const navigateBrowserHistory = useTabsStore((s) => s.navigateBrowserHistory);
+	const resumeBrowserPane = useTabsStore((s) => s.resumeBrowserPane);
 	const browserState = useTabsStore((s) => s.panes[paneId]?.browser);
+	const suspended = useTabsStore((s) => s.panes[paneId]?.suspended ?? false);
 	const historyIndex = browserState?.historyIndex ?? 0;
 	const historyLength = browserState?.history.length ?? 0;
 	const canGoBack = historyIndex > 0;
@@ -179,7 +184,8 @@ export function usePersistentWebview({
 		let webview = webviewRegistry.get(paneId);
 
 		if (webview) {
-			// Reclaim from hidden container
+			// Reclaim from hidden container — update activity timestamp
+			lastActiveTimestamps.set(paneId, Date.now());
 			container.appendChild(webview);
 			syncStoreFromWebview(webview);
 		} else {
@@ -196,8 +202,12 @@ export function usePersistentWebview({
 			webviewRegistry.set(paneId, webview);
 			container.appendChild(webview);
 
-			const finalUrl = sanitizeUrl(initialUrlRef.current);
-			webview.src = finalUrl;
+			// If the pane was suspended (idle-unloaded), restore to last known URL
+			const restoreUrl = suspended
+				? (useTabsStore.getState().panes[paneId]?.browser?.currentUrl ?? initialUrlRef.current)
+				: initialUrlRef.current;
+			webview.src = sanitizeUrl(restoreUrl);
+			if (suspended) resumeBrowserPane(paneId);
 		}
 
 		const wv = webview;
@@ -367,10 +377,13 @@ export function usePersistentWebview({
 				handleDidFailLoad as EventListener,
 			);
 
-			getHiddenContainer().appendChild(wv);
+			// Record when the webview was last visible before parking
+		lastActiveTimestamps.set(paneId, Date.now());
+		getHiddenContainer().appendChild(wv);
 		};
 		// paneId is stable for the lifetime of a pane; initialUrlRef only used on first create.
-	}, [paneId, registerBrowser, syncStoreFromWebview, upsertHistory]);
+		// suspended triggers recreation when the idle-unloaded webview is focused again.
+	}, [paneId, registerBrowser, resumeBrowserPane, suspended, syncStoreFromWebview, upsertHistory]);
 
 	// -- Navigation methods (operate directly on the webview) ---------------
 
