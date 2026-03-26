@@ -204,7 +204,8 @@ export function usePersistentWebview({
 
 			// If the pane was suspended (idle-unloaded), restore to last known URL
 			const restoreUrl = suspended
-				? (useTabsStore.getState().panes[paneId]?.browser?.currentUrl ?? initialUrlRef.current)
+				? (useTabsStore.getState().panes[paneId]?.browser?.currentUrl ??
+					initialUrlRef.current)
 				: initialUrlRef.current;
 			webview.src = sanitizeUrl(restoreUrl);
 			if (suspended) resumeBrowserPane(paneId);
@@ -378,12 +379,19 @@ export function usePersistentWebview({
 			);
 
 			// Record when the webview was last visible before parking
-		lastActiveTimestamps.set(paneId, Date.now());
-		getHiddenContainer().appendChild(wv);
+			lastActiveTimestamps.set(paneId, Date.now());
+			getHiddenContainer().appendChild(wv);
 		};
 		// paneId is stable for the lifetime of a pane; initialUrlRef only used on first create.
 		// suspended triggers recreation when the idle-unloaded webview is focused again.
-	}, [paneId, registerBrowser, resumeBrowserPane, suspended, syncStoreFromWebview, upsertHistory]);
+	}, [
+		paneId,
+		registerBrowser,
+		resumeBrowserPane,
+		suspended,
+		syncStoreFromWebview,
+		upsertHistory,
+	]);
 
 	// -- Navigation methods (operate directly on the webview) ---------------
 

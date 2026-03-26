@@ -5,33 +5,46 @@
  * process-tree RSS exceeds 512 MB.
  */
 
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	mock,
+	spyOn,
+} from "bun:test";
 
 // ---------------------------------------------------------------------------
-// Mock process-tree BEFORE importing terminal-host so bun resolves the mock.
+// Inner mock functions — reset per-test, delegated from spies set in beforeAll
 // ---------------------------------------------------------------------------
 
 const mockCaptureProcessSnapshot = mock(async () => ({
-	byPid: new Map<number, { pid: number; ppid: number; cpu: number; memory: number }>(),
+	byPid: new Map<
+		number,
+		{ pid: number; ppid: number; cpu: number; memory: number }
+	>(),
 	childrenOf: new Map<number, number[]>(),
 }));
 
 const mockGetSubtreeResources = mock(
-	(_snap: unknown, _pid: number): { cpu: number; memory: number; pids: number[] } => ({
+	(
+		_snap: unknown,
+		_pid: number,
+	): { cpu: number; memory: number; pids: number[] } => ({
 		cpu: 0,
 		memory: 0,
 		pids: [],
 	}),
 );
 
-mock.module("../lib/resource-metrics/process-tree", () => ({
-	captureProcessSnapshot: mockCaptureProcessSnapshot,
-	getSubtreeResources: mockGetSubtreeResources,
-	getSubtreePids: (_snap: unknown, _pid: number): number[] => [],
-}));
+// ---------------------------------------------------------------------------
+// Lazy TerminalHost — imported after spies are in place
+// ---------------------------------------------------------------------------
 
-// Dynamic import ensures the mocked module is used.
-const { TerminalHost } = await import("./terminal-host");
+let TerminalHost: typeof import("./terminal-host").TerminalHost;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -82,14 +95,36 @@ function internal(h: InstanceType<typeof TerminalHost>): HostInternal {
 describe("TerminalHost.runRssSweep", () => {
 	let host: InstanceType<typeof TerminalHost>;
 
+	beforeAll(async () => {
+		// Set up spies on the module namespace BEFORE TerminalHost is imported.
+		// Bun's ES live bindings ensure TerminalHost sees the spy implementations.
+		const processTree = await import(
+			"../lib/resource-metrics/process-tree"
+		);
+		spyOn(processTree, "captureProcessSnapshot").mockImplementation(
+			(...args) => mockCaptureProcessSnapshot(...args),
+		);
+		spyOn(processTree, "getSubtreeResources").mockImplementation(
+			(...args) => mockGetSubtreeResources(...args),
+		);
+		({ TerminalHost } = await import("./terminal-host"));
+	});
+
+	afterAll(() => {
+		mock.restore();
+	});
+
 	beforeEach(() => {
-		// mockReset clears both call history AND implementation, preventing
-		// state from leaking between tests.
+		// Reset call history AND implementations so tests are fully isolated.
 		mockCaptureProcessSnapshot.mockReset();
 		mockGetSubtreeResources.mockReset();
+
 		// Re-establish default (no-op) implementations after reset.
 		mockCaptureProcessSnapshot.mockImplementation(async () => ({
-			byPid: new Map<number, { pid: number; ppid: number; cpu: number; memory: number }>(),
+			byPid: new Map<
+				number,
+				{ pid: number; ppid: number; cpu: number; memory: number }
+			>(),
 			childrenOf: new Map<number, number[]>(),
 		}));
 		mockGetSubtreeResources.mockImplementation(() => ({
@@ -97,6 +132,7 @@ describe("TerminalHost.runRssSweep", () => {
 			memory: 0,
 			pids: [] as number[],
 		}));
+
 		host = new TerminalHost();
 		// Stop background timers immediately — we drive sweep manually.
 		internal(host).stopIdleSweep();

@@ -211,9 +211,11 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 		});
 	}, [historicalMessages, optimisticUserMessage, currentMessage, isRunning]);
 
-	const hasMoreMessages = !showAllMessages && allMessages.length > MAX_DISPLAYED_MESSAGES;
+	const hasMoreMessages =
+		!showAllMessages && allMessages.length > MAX_DISPLAYED_MESSAGES;
 	const messages = useMemo(
-		() => (hasMoreMessages ? allMessages.slice(-MAX_DISPLAYED_MESSAGES) : allMessages),
+		() =>
+			hasMoreMessages ? allMessages.slice(-MAX_DISPLAYED_MESSAGES) : allMessages,
 		[allMessages, hasMoreMessages],
 	);
 	const loadAllMessages = useCallback(() => setShowAllMessages(true), []);

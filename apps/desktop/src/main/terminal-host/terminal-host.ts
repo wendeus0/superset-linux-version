@@ -12,6 +12,7 @@ import type { Socket } from "node:net";
 import {
 	captureProcessSnapshot,
 	getSubtreeResources,
+	type ProcessSnapshot,
 } from "../lib/resource-metrics/process-tree";
 import { TerminalAttachCanceledError } from "../lib/terminal/errors";
 import type {
@@ -150,7 +151,7 @@ export class TerminalHost {
 		);
 		if (sessionsWithPid.length === 0) return;
 
-		let snapshot;
+		let snapshot: ProcessSnapshot | undefined;
 		try {
 			snapshot = await captureProcessSnapshot();
 		} catch {
