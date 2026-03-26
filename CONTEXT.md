@@ -14,21 +14,23 @@ Estado operacional da sessão e da fase ativa do fork.
 
 ## Fase ativa
 
-1. M4 concluída: UX Linux + documentação final consolidada (RELEASE + runbooks operacionais).
-2. M5 ativa: go-live controlado Linux com checklist formal e validação final de evidências.
-3. Operar gate `linux-smoke` como bloqueio obrigatório para release estável/canary.
-4. Concluir publicação controlada após checklist M5 completo.
+**M5 concluída (2026-03-25).** Backlog macro M0–M5 completo. Linux é plataforma de primeira classe com gate de smoke obrigatório em CI.
+
+Próximas frentes candidatas:
+- `fix/dev-cors-workaround` — isolar e avaliar merge das mudanças CORS de desenvolvimento.
+- Contribuição de patches locais de volta ao upstream (`superset-sh/superset`).
+- Automação AUR com credenciais reais (fora do escopo M5; requer avaliação separada).
 
 ## Backlog macro
 
-| Fase | Título | Dependência |
+| Fase | Título | Status |
 |---|---|---|
-| M0 | Baseline e critérios de aceite Linux | — |
-| M1 | CI Linux com smoke test | M0 |
-| M2 | Hardening de runtime nativo | M1 |
-| M3 | Distribuição (`.deb` + AUR) | M2 |
-| M4 | UX Linux + documentação final | M3 |
-| M5 | Go-live controlado | M4 |
+| M0 | Baseline e critérios de aceite Linux | ✅ |
+| M1 | CI Linux com smoke test | ✅ |
+| M2 | Hardening de runtime nativo | ✅ |
+| M3 | Distribuição (`.deb` + AUR) | ✅ |
+| M4 | UX Linux + documentação final | ✅ |
+| M5 | Go-live controlado | ✅ |
 
 ## Critérios de aceite Linux (resumo)
 
@@ -44,7 +46,7 @@ Estado operacional da sessão e da fase ativa do fork.
 - Compatibilidade ABI e optional deps em distros diferentes.
 - Regressões em runtime nativo por updates rolling no Arch.
 - Drift com upstream em scripts de build/release.
-- Falso positivo de go-live sem evidência consolidada de checklist M5.
+- Drift com upstream em scripts de build/release — manter mudanças localizadas.
 
 ## Governança operacional
 

@@ -85,6 +85,4 @@ O problema alvo é reduzir risco de regressão em runtime Linux e remover lacuna
 
 ## 7. ADR relacionado
 
-- [ ] Não aplica
-- [ ] ADR existente: `docs/adr/NNN-<slug>.md`
-- [x] Novo ADR necessário (mudança durável)
+- [x] ADR existente: `docs/adr/007-linux-distribution-smoke-gate-policy.md`
