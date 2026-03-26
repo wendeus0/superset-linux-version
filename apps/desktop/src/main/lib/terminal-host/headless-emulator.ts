@@ -10,7 +10,7 @@
 import "../../terminal-host/xterm-env-polyfill";
 import { SerializeAddon } from "@xterm/addon-serialize";
 import { Terminal } from "@xterm/headless";
-import { DEFAULT_TERMINAL_SCROLLBACK } from "shared/constants";
+import { DEFAULT_TERMINAL_SCROLLBACK, MAX_TERMINAL_SCROLLBACK } from "shared/constants";
 import {
 	DEFAULT_MODES,
 	type TerminalModes,
@@ -86,7 +86,7 @@ export class HeadlessEmulator {
 		this.terminal = new Terminal({
 			cols,
 			rows,
-			scrollback,
+			scrollback: Math.min(scrollback, MAX_TERMINAL_SCROLLBACK),
 			allowProposedApi: true,
 		});
 
