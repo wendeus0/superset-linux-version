@@ -64,8 +64,20 @@ describe("TerminalHost.runRssSweep", () => {
 	let host: InstanceType<typeof TerminalHost>;
 
 	beforeEach(() => {
-		mockCaptureProcessSnapshot.mockClear();
-		mockGetSubtreeResources.mockClear();
+		// mockReset clears both call history AND implementation, preventing
+		// state from leaking between tests.
+		mockCaptureProcessSnapshot.mockReset();
+		mockGetSubtreeResources.mockReset();
+		// Re-establish default (no-op) implementations after reset.
+		mockCaptureProcessSnapshot.mockImplementation(async () => ({
+			byPid: new Map<number, { pid: number; ppid: number; cpu: number; memory: number }>(),
+			childrenOf: new Map<number, number[]>(),
+		}));
+		mockGetSubtreeResources.mockImplementation(() => ({
+			cpu: 0,
+			memory: 0,
+			pids: [] as number[],
+		}));
 		host = new TerminalHost();
 		// Stop background timers immediately — we drive sweep manually.
 		(host as any).stopIdleSweep();
