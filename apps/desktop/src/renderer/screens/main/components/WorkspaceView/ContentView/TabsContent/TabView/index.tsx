@@ -1,7 +1,7 @@
 import "react-mosaic-component/react-mosaic-component.css";
 import "./mosaic-theme.css";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo } from "react";
 import {
 	Mosaic,
 	type MosaicBranch,
@@ -22,7 +22,9 @@ import { useTheme } from "renderer/stores/theme";
 import { BrowserPane } from "./BrowserPane";
 import { ChatPane } from "./ChatPane";
 import { MosaicSplitOverlay } from "./components";
-import { DevToolsPane } from "./DevToolsPane";
+const DevToolsPane = lazy(() =>
+	import("./DevToolsPane").then((m) => ({ default: m.DevToolsPane })),
+);
 import { FileViewerPane } from "./FileViewerPane";
 import { TabPane } from "./TabPane";
 
@@ -231,18 +233,20 @@ export function TabView({ tab }: TabViewProps) {
 				);
 			}
 
-			// Route devtools panes
+			// Route devtools panes (lazy-loaded — not needed until user opens DevTools)
 			if (paneInfo.type === "devtools" && paneInfo.devtools) {
 				return (
-					<DevToolsPane
-						paneId={paneId}
-						path={path}
-						tabId={tab.id}
-						targetPaneId={paneInfo.devtools.targetPaneId}
-						splitPaneAuto={splitPaneAuto}
-						removePane={removePane}
-						setFocusedPane={setFocusedPane}
-					/>
+					<Suspense fallback={null}>
+						<DevToolsPane
+							paneId={paneId}
+							path={path}
+							tabId={tab.id}
+							targetPaneId={paneInfo.devtools.targetPaneId}
+							splitPaneAuto={splitPaneAuto}
+							removePane={removePane}
+							setFocusedPane={setFocusedPane}
+						/>
+					</Suspense>
 				);
 			}
 

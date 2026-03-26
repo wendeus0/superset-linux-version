@@ -15,6 +15,9 @@ import { applyUIColors, toXtermTheme, updateThemeClass } from "./utils";
 /** Special theme ID for system preference (follows OS dark/light mode) */
 export const SYSTEM_THEME_ID = "system";
 
+/** Guards against attaching duplicate MediaQuery listeners on repeated initializeTheme() calls */
+let systemThemeListenerAttached = false;
+
 interface ThemeState {
 	/** Current active theme ID (can be "system" or a specific theme ID) */
 	activeThemeId: string;
@@ -243,8 +246,11 @@ export const useThemeStore = create<ThemeState>()(
 						state.setTheme(DEFAULT_THEME_ID);
 					}
 
-					// Set up listener for OS theme preference changes
-					if (typeof window !== "undefined") {
+					// Set up listener for OS theme preference changes (only once — guard
+					// prevents duplicate listeners on repeated initializeTheme() calls
+					// during store rehydration, which would cause a memory leak)
+					if (typeof window !== "undefined" && !systemThemeListenerAttached) {
+						systemThemeListenerAttached = true;
 						const mediaQuery = window.matchMedia(
 							"(prefers-color-scheme: dark)",
 						);

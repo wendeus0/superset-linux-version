@@ -75,6 +75,18 @@ class BrowserManager extends EventEmitter {
 		}
 	}
 
+	/** Clear HTTP and resource caches for all registered browser panes. */
+	async clearAllCaches(): Promise<void> {
+		const sessions = new Set<Electron.Session>();
+		for (const id of this.paneWebContentsIds.values()) {
+			const wc = webContents.fromId(id);
+			if (wc && !wc.isDestroyed()) {
+				sessions.add(wc.session);
+			}
+		}
+		await Promise.all([...sessions].map((s) => s.clearCache()));
+	}
+
 	getWebContents(paneId: string): Electron.WebContents | null {
 		const id = this.paneWebContentsIds.get(paneId);
 		if (id == null) return null;

@@ -121,7 +121,10 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 	const queryInput = sessionCommandInput ?? skipToken;
 	const isQueryEnabled = enabled && Boolean(sessionId);
 	const refetchIntervalMs = toRefetchIntervalMs(fps);
-	const queryOptions = {
+
+	// Display state (current streaming message) needs high-frequency updates while
+	// the agent is running — keep at the caller-specified fps.
+	const displayQueryOptions = {
 		enabled: isQueryEnabled,
 		refetchInterval: refetchIntervalMs,
 		refetchIntervalInBackground: true,
@@ -130,14 +133,26 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 		gcTime: 0,
 	} as const;
 
+	// Historical messages change only when the agent finishes a turn — polling at
+	// 60fps wastes CPU and memory for a list that barely changes. 1 second is
+	// more than responsive enough for completed messages.
+	const messagesQueryOptions = {
+		enabled: isQueryEnabled,
+		refetchInterval: 1000,
+		refetchIntervalInBackground: false,
+		refetchOnWindowFocus: false,
+		staleTime: 0,
+		gcTime: 0,
+	} as const;
+
 	const displayQuery = chatRuntimeServiceTrpc.session.getDisplayState.useQuery(
 		queryInput,
-		queryOptions,
+		displayQueryOptions,
 	);
 
 	const messagesQuery = chatRuntimeServiceTrpc.session.listMessages.useQuery(
 		queryInput,
-		queryOptions,
+		messagesQueryOptions,
 	);
 
 	const displayState = displayQuery.data ?? null;

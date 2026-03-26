@@ -2,7 +2,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@superset/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@superset/ui/tooltip";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { HiOutlineArrowPath, HiOutlineCpuChip } from "react-icons/hi2";
+import { HiOutlineArrowPath, HiOutlineCpuChip, HiOutlineTrash } from "react-icons/hi2";
 import { electronTrpc } from "renderer/lib/electron-trpc";
 import { useTabsStore } from "renderer/stores/tabs/store";
 import { AppResourceSection } from "./components/AppResourceSection";
@@ -58,6 +58,11 @@ export function ResourceConsumption() {
 			refetchInterval: open ? 2000 : 15000,
 		},
 	);
+
+	const { mutate: forceCleanup, isPending: isCleaning } =
+		electronTrpc.resourceMetrics.forceCleanup.useMutation({
+			onSuccess: () => void refetch(),
+		});
 
 	if (!enabled) return null;
 	const normalizedSnapshot = normalizeResourceMetricsSnapshot(snapshot);
@@ -154,16 +159,36 @@ export function ResourceConsumption() {
 						<h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
 							Resource Usage
 						</h4>
-						<button
-							type="button"
-							onClick={() => refetch()}
-							className="p-0.5 rounded hover:bg-muted transition-colors"
-							aria-label="Refresh metrics"
-						>
-							<HiOutlineArrowPath
-								className={`h-3.5 w-3.5 text-muted-foreground ${isFetching ? "animate-spin" : ""}`}
-							/>
-						</button>
+						<div className="flex items-center gap-1">
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<button
+										type="button"
+										onClick={() => forceCleanup()}
+										disabled={isCleaning}
+										className="p-0.5 rounded hover:bg-muted transition-colors disabled:opacity-50"
+										aria-label="Force memory cleanup"
+									>
+										<HiOutlineTrash
+											className={`h-3.5 w-3.5 text-muted-foreground ${isCleaning ? "animate-pulse" : ""}`}
+										/>
+									</button>
+								</TooltipTrigger>
+								<TooltipContent side="bottom" sideOffset={6} showArrow={false}>
+									Clear browser caches to free memory
+								</TooltipContent>
+							</Tooltip>
+							<button
+								type="button"
+								onClick={() => refetch()}
+								className="p-0.5 rounded hover:bg-muted transition-colors"
+								aria-label="Refresh metrics"
+							>
+								<HiOutlineArrowPath
+									className={`h-3.5 w-3.5 text-muted-foreground ${isFetching ? "animate-spin" : ""}`}
+								/>
+							</button>
+						</div>
 					</div>
 
 					{normalizedSnapshot && (

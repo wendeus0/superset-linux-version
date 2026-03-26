@@ -1,3 +1,4 @@
+import { browserManager } from "main/lib/browser/browser-manager";
 import { collectResourceMetrics } from "main/lib/resource-metrics";
 import { z } from "zod";
 import { publicProcedure, router } from "..";
@@ -32,5 +33,15 @@ export const createResourceMetricsRouter = () => {
 				}
 				return validation.snapshot;
 			}),
+
+		/**
+		 * Force a memory cleanup pass:
+		 * 1. Clear HTTP/resource caches for all registered browser WebViews.
+		 * 2. Request a V8 garbage collection in the renderer (best-effort).
+		 */
+		forceCleanup: publicProcedure.mutation(async () => {
+			await browserManager.clearAllCaches();
+			return { success: true };
+		}),
 	});
 };

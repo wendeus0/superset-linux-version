@@ -10,16 +10,23 @@ Estado operacional da sessão e da fase ativa do fork.
 | Repositório base | Fork de `superset-sh/superset` |
 | Foco de plataforma | Arch Linux (rolling) + Ubuntu 22.04/24.04 |
 | Distribuição alvo | AppImage + `.deb` + AUR (`superset-bin`) |
-| Branch sugerida | `feat/linux-port-arch-ubuntu` |
+| Branch ativa | `claude/optimize-system-performance-phase2-ZsxeP` |
 
 ## Fase ativa
 
-**M5 concluída (2026-03-25).** Backlog macro M0–M5 completo. Linux é plataforma de primeira classe com gate de smoke obrigatório em CI.
+**Frente: Otimização de Memória — Fase 2 (iniciada 2026-03-26)**
 
-Próximas frentes candidatas:
-- `fix/dev-cors-workaround` — isolar e avaliar merge das mudanças CORS de desenvolvimento.
-- Contribuição de patches locais de volta ao upstream (`superset-sh/superset`).
-- Automação AUR com credenciais reais (fora do escopo M5; requer avaliação separada).
+Fase 1 concluída e mergeada em 2026-03-26. Reduções implementadas:
+- WebView Idle Unloading (30min timeout, sweep de 5min)
+- Terminal Scrollback Hard Cap (10K linhas via MAX_TERMINAL_SCROLLBACK)
+- Terminal Idle Session Culling (1h timeout, sweep de 10min)
+- React Query Cache Optimization (staleTime 30s, invalidação ao trocar workspace)
+
+Fase 2 em andamento — médio prazo (~2–4 semanas):
+- **2.1** Chat History Pagination — carregar 50 mensagens recentes, lazy via IndexedDB
+- **2.2** Memory Pressure Response — GC on threshold, auto-unload, "Force Cleanup" UI
+- **2.3** Event Listener Audit — mapear e corrigir leaks em modais, drag, WebViews
+- **2.4** Remoção de código legado — refs `chatMastra`, DevTools lazy-load, extension loader condicional
 
 ## Backlog macro
 
@@ -31,6 +38,8 @@ Próximas frentes candidatas:
 | M3 | Distribuição (`.deb` + AUR) | ✅ |
 | M4 | UX Linux + documentação final | ✅ |
 | M5 | Go-live controlado | ✅ |
+| M6 | Otimização de memória — Fase 1 | ✅ |
+| M7 | Otimização de memória — Fase 2 | 🔄 em andamento |
 
 ## Critérios de aceite Linux (resumo)
 
