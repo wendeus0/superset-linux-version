@@ -8,6 +8,8 @@ const queryClient = new QueryClient({
 		queries: {
 			networkMode: "always",
 			retry: false,
+			staleTime: 30_000, // 30s — avoids refetch on every mount
+			gcTime: 5 * 60 * 1000, // 5 minutes — explicit (matches TanStack Query default)
 		},
 		mutations: {
 			networkMode: "always",

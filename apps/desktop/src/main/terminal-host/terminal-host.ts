@@ -35,6 +35,10 @@ const KILL_TIMEOUT_MS = 5000;
 const MAX_CONCURRENT_SPAWNS = 3;
 const SPAWN_READY_TIMEOUT_MS = 5000;
 
+/** Auto-kill idle sessions with no attached clients after this duration */
+const IDLE_SESSION_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+const IDLE_SWEEP_INTERVAL_MS = 10 * 60 * 1000; // sweep every 10 minutes
+
 interface PendingAttach {
 	requestId: string;
 	abortController: AbortController;
@@ -72,6 +76,7 @@ export class TerminalHost {
 	private killTimers: Map<string, NodeJS.Timeout> = new Map();
 	private pendingAttaches: Map<string, PendingAttach> = new Map();
 	private spawnLimiter = new Semaphore(MAX_CONCURRENT_SPAWNS);
+	private idleSweepTimer: NodeJS.Timeout | null = null;
 	private onUnattachedExit?: (event: {
 		sessionId: string;
 		exitCode: number;
@@ -88,6 +93,32 @@ export class TerminalHost {
 		}) => void;
 	} = {}) {
 		this.onUnattachedExit = onUnattachedExit;
+		this.startIdleSweep();
+	}
+
+	private startIdleSweep(): void {
+		this.idleSweepTimer = setInterval(() => {
+			const now = Date.now();
+			for (const session of this.sessions.values()) {
+				if (!session.isAttachable) continue; // already terminating/dead
+				if (session.clientCount > 0) continue; // has attached clients
+				const meta = session.getMeta();
+				const lastActive = new Date(meta.lastAttachedAt).getTime();
+				if (now - lastActive > IDLE_SESSION_TIMEOUT_MS) {
+					console.log(
+						`[TerminalHost] Auto-killing idle session ${session.sessionId} (idle for ${Math.round((now - lastActive) / 60000)}min)`,
+					);
+					this.kill({ sessionId: session.sessionId, deleteHistory: false });
+				}
+			}
+		}, IDLE_SWEEP_INTERVAL_MS);
+	}
+
+	private stopIdleSweep(): void {
+		if (this.idleSweepTimer) {
+			clearInterval(this.idleSweepTimer);
+			this.idleSweepTimer = null;
+		}
 	}
 
 	/**
@@ -382,6 +413,8 @@ export class TerminalHost {
 	}
 
 	async dispose(): Promise<void> {
+		this.stopIdleSweep();
+
 		for (const pendingAttach of this.pendingAttaches.values()) {
 			pendingAttach.abortController.abort();
 		}
