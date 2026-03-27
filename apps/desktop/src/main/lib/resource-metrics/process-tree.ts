@@ -16,8 +16,10 @@ let linuxMetrics: typeof import("@superset/linux-process-metrics") | null =
 try {
 	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	linuxMetrics = require("@superset/linux-process-metrics");
-} catch {
-	// Package unavailable (non-Linux or build skipped).
+} catch (err) {
+	if ((err as NodeJS.ErrnoException).code !== "MODULE_NOT_FOUND") {
+		console.warn("[linux-process-metrics] unexpected load error:", err);
+	}
 }
 
 const execAsync = promisify(exec);
