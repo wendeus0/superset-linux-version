@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { listExternalWorktrees } from "../utils/git";
+import { listExternalWorktrees } from "../utils/list-external-worktrees";
 
 /**
  * Integration tests for external worktree auto-import feature
