@@ -216,6 +216,8 @@ export interface TabsStore extends TabsState {
 	updateBrowserLoading: (paneId: string, isLoading: boolean) => void;
 	setBrowserError: (paneId: string, error: BrowserLoadError | null) => void;
 	setBrowserViewport: (paneId: string, viewport: ViewportPreset | null) => void;
+	suspendBrowserPane: (paneId: string) => void;
+	resumeBrowserPane: (paneId: string) => void;
 	openDevToolsPane: (
 		tabId: string,
 		browserPaneId: string,

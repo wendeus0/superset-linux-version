@@ -39,6 +39,7 @@ export const MOCK_ORG_ID = "mock-org-id";
 
 // Terminal defaults
 export const DEFAULT_TERMINAL_SCROLLBACK = 5000;
+export const MAX_TERMINAL_SCROLLBACK = 10_000;
 
 // Default user preference values
 export const DEFAULT_CONFIRM_ON_QUIT = true;
