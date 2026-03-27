@@ -5,7 +5,6 @@ import { trpcServer } from "@hono/trpc-server";
 import { Octokit } from "@octokit/rest";
 import type { MiddlewareHandler } from "hono";
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { createApiClient } from "./api";
 import { createDb } from "./db";
 import { registerWorkspaceFilesystemEventsRoute } from "./filesystem";
@@ -80,6 +79,7 @@ export function createApp(options?: CreateAppOptions): CreateAppResult {
 		filesystem,
 		pullRequests: pullRequestRuntime,
 	};
+	const rendererPort = Number(process.env.DESKTOP_VITE_PORT) || 5173;
 	const app = new Hono();
 	const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
 
@@ -104,6 +104,7 @@ export function createApp(options?: CreateAppOptions): CreateAppResult {
 		app.use("/terminal/*", wsAuth);
 		app.use("/workspace-filesystem/*", wsAuth);
 	}
+
 
 	registerWorkspaceFilesystemEventsRoute({
 		app,

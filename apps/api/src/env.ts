@@ -47,6 +47,8 @@ export const env = createEnv({
 		DURABLE_STREAMS_URL: z.string().url(),
 		DURABLE_STREAMS_SECRET: z.string().min(1),
 		TAVILY_API_KEY: z.string().optional(),
+		// DEV-ONLY: comma-separated list of extra origins injected into the CORS allowlist.
+		// Never set this in production — it bypasses origin restrictions without code review.
 		CORS_EXTRA_ORIGINS: z.string().optional(),
 	},
 	client: {
