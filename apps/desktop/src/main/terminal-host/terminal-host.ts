@@ -154,8 +154,9 @@ export class TerminalHost {
 		let snapshot: ProcessSnapshot | undefined;
 		try {
 			snapshot = await captureProcessSnapshot();
-		} catch {
-			return; // ps/wmic unavailable — skip this cycle
+		} catch (err) {
+			console.warn("[resource-metrics] captureProcessSnapshot failed:", err);
+			return;
 		}
 
 		for (const session of sessionsWithPid) {
