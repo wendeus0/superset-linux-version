@@ -389,9 +389,13 @@ export function usePersistentWebview({
 				handleDidFailLoad as EventListener,
 			);
 
-			// Record when the webview was last visible before parking
-			lastActiveTimestamps.set(paneId, Date.now());
-			getHiddenContainer().appendChild(wv);
+			// Only park if the pane was not explicitly destroyed.
+			// destroyPersistentWebview removes paneId from webviewRegistry;
+			// re-parking after destruction would resurrect the removed node.
+			if (webviewRegistry.has(paneId)) {
+				lastActiveTimestamps.set(paneId, Date.now());
+				getHiddenContainer().appendChild(wv);
+			}
 		};
 		// paneId is stable for the lifetime of a pane; initialUrlRef only used on first create.
 		// suspended triggers recreation when the idle-unloaded webview is focused again.
