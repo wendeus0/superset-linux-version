@@ -58,10 +58,12 @@ jobs:
 
       - name: Run Linux smoke suite
         working-directory: apps/desktop
+        env:
+          SMOKE_PROFILE: ${{ inputs.profile }}
+          SMOKE_SKIP_INSTALL: ${{ inputs.skip_install }}
         run: |
-          CMD="bun run smoke:linux -- --profile ${{ inputs.profile }} --ci"
-          if [ "${{ inputs.skip_install }}" = "true" ]; then
-            CMD="$CMD --skip-install"
+          EXTRA_ARGS=""
+          if [ "$SMOKE_SKIP_INSTALL" = "true" ]; then
+            EXTRA_ARGS="--skip-install"
           fi
-          echo "Running: $CMD"
-          eval "$CMD"
+          bun run smoke:linux -- --profile "$SMOKE_PROFILE" --ci $EXTRA_ARGS

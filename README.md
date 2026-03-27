@@ -7,7 +7,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/superset-sh/superset?style=flat&logo=github)](https://github.com/superset-sh/superset/stargazers)
 [![GitHub release](https://img.shields.io/github/v/release/superset-sh/superset?style=flat&logo=github)](https://github.com/superset-sh/superset/releases)
 [![License](https://img.shields.io/github/license/superset-sh/superset?style=flat)](LICENSE.md)
-[![Linux Build](https://img.shields.io/badge/Linux-AppImage%20%7C%20.deb%20%7C%20AUR-1793D1?logo=linux)](.#linux-installation)
+[![Linux Build](https://img.shields.io/badge/Linux-AppImage%20%7C%20.deb%20%7C%20AUR-1793D1?logo=linux)](#linux-installation)
 [![Twitter](https://img.shields.io/badge/@superset__sh-555?logo=x)](https://x.com/superset_sh)
 [![Discord](https://img.shields.io/badge/Discord-555?logo=discord)](https://discord.gg/cZeD9WYcV7)
 
