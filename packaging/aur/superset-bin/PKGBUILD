@@ -11,7 +11,7 @@ depends=('gtk3' 'libnotify' 'nss' 'libxss' 'libxtst' 'xdg-utils' 'at-spi2-core' 
 optdepends=('libsecret: keychain integration')
 provides=('superset')
 conflicts=('superset')
-source_x86_64=("superset-${pkgver}-x64.AppImage::https://github.com/superset-sh/superset/releases/download/desktop-v1.3.2/Superset-x86_64.AppImage")
+source_x86_64=("superset-${pkgver}-x64.AppImage::https://github.com/superset-sh/superset/releases/download/desktop-v${pkgver}/Superset-x86_64.AppImage")
 sha256sums_x86_64=('f14967b97114f2665537a48b31f8c2d5fbee06b4def38d696e1394874c3fff0f')
 
 package() {

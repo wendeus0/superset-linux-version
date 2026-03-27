@@ -35,13 +35,13 @@ Corrigir CORS wildcard implícito no `host-service` local do desktop, substituin
 ## Riscos residuais
 
 1. **`"null"` origin** — intencional para Electron prod (`loadFile` via `file://` → Chromium envia `Origin: null`). Risco residual aceito: vetor de abuso pressupõe execução local com acesso ao filesystem.
-2. **`CORS_EXTRA_ORIGINS` sem guard de `NODE_ENV` em `proxy.ts`** — comentário adicionado, mas não há bloqueio programático em produção. Follow-up recomendado fora deste escopo.
+2. ~~**`CORS_EXTRA_ORIGINS` sem guard de `NODE_ENV` em `proxy.ts`**~~ — resolvido em `fix/review-corrections`: `extraOrigins` agora só é aplicado quando `NODE_ENV !== "production"`.
 3. **Binding do host-service** — não verificado se listener usa `127.0.0.1` ou `0.0.0.0`. Se `0.0.0.0`, origens na LAN podem alcançar o serviço diretamente (CORS não protege contra conexões não-browser). Follow-up recomendado.
 
 ## Follow-ups
 
 - [ ] Verificar binding do host-service (`127.0.0.1` vs `0.0.0.0`)
-- [ ] Adicionar guard `NODE_ENV === "production"` em `proxy.ts` para `CORS_EXTRA_ORIGINS`
+- [x] Adicionar guard `NODE_ENV !== "production"` em `proxy.ts` para `CORS_EXTRA_ORIGINS` — implementado em `fix/review-corrections`
 
 ---
 
