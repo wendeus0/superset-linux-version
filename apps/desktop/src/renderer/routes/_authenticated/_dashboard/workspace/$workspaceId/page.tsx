@@ -90,17 +90,16 @@ export const Route = createFileRoute(
 function WorkspacePage() {
 	const { workspaceId } = Route.useParams();
 
-	// Invalidate stale queries when navigating between workspaces
+	// Invalidate stale workspace queries when navigating between workspaces
+	const utils = electronTrpc.useUtils();
 	const prevWorkspaceIdRef = useRef<string | null>(null);
 	useEffect(() => {
-		if (
-			prevWorkspaceIdRef.current !== null &&
-			prevWorkspaceIdRef.current !== workspaceId
-		) {
-			void electronQueryClient.invalidateQueries();
-		}
+		const prevId = prevWorkspaceIdRef.current;
 		prevWorkspaceIdRef.current = workspaceId;
-	}, [workspaceId]);
+		if (prevId !== null && prevId !== workspaceId) {
+			void utils.workspaces.get.invalidate({ id: workspaceId });
+		}
+	}, [workspaceId, utils]);
 
 	const { data: workspace } = electronTrpc.workspaces.get.useQuery({
 		id: workspaceId,

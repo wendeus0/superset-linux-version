@@ -65,9 +65,19 @@ export function useBrowserLifecycle() {
 			for (const [paneId, pane] of Object.entries(panes)) {
 				if (pane.type !== "webview") continue;
 				if (pane.suspended) continue; // already suspended
-				if (visiblePaneIds.has(paneId)) continue; // visible in current layout — never suspend
+				if (visiblePaneIds.has(paneId)) {
+					// Pane became visible again — clear hidden-since timestamp so it
+					// doesn't accumulate idle time while it was briefly off-screen.
+					lastActiveTimestamps.delete(paneId);
+					continue;
+				}
 
-				const lastActive = lastActiveTimestamps.get(paneId) ?? now;
+				// Record the first time this pane is observed as hidden (parked).
+				// Avoid falling back to `now` — that would reset the clock each sweep.
+				if (!lastActiveTimestamps.has(paneId)) {
+					lastActiveTimestamps.set(paneId, now);
+				}
+				const lastActive = lastActiveTimestamps.get(paneId)!;
 				if (now - lastActive > IDLE_WEBVIEW_TIMEOUT_MS) {
 					destroyPersistentWebview(paneId);
 					unregisterBrowser({ paneId });

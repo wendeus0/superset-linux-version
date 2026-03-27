@@ -5,7 +5,7 @@ import {
 	ConversationLoadingState,
 	ConversationScrollButton,
 } from "@superset/ui/ai-elements/conversation";
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { HiMiniChatBubbleLeftRight } from "react-icons/hi2";
 import type {
 	ChatMessage,
@@ -66,6 +66,28 @@ export function ChatMessageList({
 	onRestartUserMessage,
 }: ChatMessageListProps) {
 	const messageListRef = useRef<HTMLDivElement>(null);
+
+	const handleLoadAllMessages = useCallback(() => {
+		if (!onLoadAllMessages) return;
+		// Walk up the DOM to find the first scrollable ancestor so we can
+		// restore the viewport position after the extra messages render.
+		let scrollEl: HTMLElement | null = messageListRef.current?.parentElement ?? null;
+		while (scrollEl) {
+			const { overflow, overflowY } = window.getComputedStyle(scrollEl);
+			if (/auto|scroll/.test(overflow + overflowY)) break;
+			scrollEl = scrollEl.parentElement;
+		}
+		const prevHeight = scrollEl?.scrollHeight ?? 0;
+		const prevTop = scrollEl?.scrollTop ?? 0;
+		onLoadAllMessages();
+		if (scrollEl) {
+			const el = scrollEl;
+			requestAnimationFrame(() => {
+				el.scrollTop = prevTop + (el.scrollHeight - prevHeight);
+			});
+		}
+	}, [onLoadAllMessages]);
+
 	const chatSearch = useChatMessageSearch({
 		containerRef: messageListRef,
 		isFocused,
@@ -180,7 +202,7 @@ export function ChatMessageList({
 						<div className="flex justify-center">
 							<button
 								type="button"
-								onClick={onLoadAllMessages}
+								onClick={handleLoadAllMessages}
 								className="text-xs text-muted-foreground hover:text-foreground border border-border rounded-md px-3 py-1.5 transition-colors hover:bg-muted"
 							>
 								Load earlier messages

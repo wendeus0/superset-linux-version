@@ -89,7 +89,10 @@ export class HeadlessEmulator {
 		this.terminal = new Terminal({
 			cols,
 			rows,
-			scrollback: Math.min(scrollback, MAX_TERMINAL_SCROLLBACK),
+			scrollback: Math.min(
+				Math.max(0, Math.floor(Number.isFinite(Number(scrollback)) ? Number(scrollback) : 0)),
+				MAX_TERMINAL_SCROLLBACK,
+			),
 			allowProposedApi: true,
 		});
 

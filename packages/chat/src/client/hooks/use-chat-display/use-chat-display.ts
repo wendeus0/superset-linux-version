@@ -163,6 +163,7 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 		: findLatestAssistantErrorMessage(historicalMessages);
 	const [showAllMessages, setShowAllMessages] = useState(false);
 	useEffect(() => {
+		if (!sessionId) return;
 		setShowAllMessages(false);
 	}, [sessionId]);
 	const [optimisticUserMessage, setOptimisticUserMessage] = useState<

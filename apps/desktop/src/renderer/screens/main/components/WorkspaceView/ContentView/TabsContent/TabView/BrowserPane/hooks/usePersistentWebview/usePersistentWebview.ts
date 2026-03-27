@@ -108,6 +108,14 @@ export function usePersistentWebview({
 	const resumeBrowserPane = useTabsStore((s) => s.resumeBrowserPane);
 	const browserState = useTabsStore((s) => s.panes[paneId]?.browser);
 	const suspended = useTabsStore((s) => s.panes[paneId]?.suspended ?? false);
+	// True when this pane's tab is the active tab for its workspace.
+	// Used to gate webview creation so a suspended pane only recreates its
+	// webview when the user actually focuses it (not on every store change).
+	const isActiveTab = useTabsStore((s) => {
+		const pane = s.panes[paneId];
+		if (!pane) return false;
+		return s.activeTabIds[pane.workspaceId] === pane.tabId;
+	});
 	// Ref so the main lifecycle effect can read `suspended` at mount time without
 	// listing it as a dependency. If `suspended` were in the deps array, calling
 	// resumeBrowserPane() inside the effect would immediately re-trigger cleanup
@@ -195,8 +203,10 @@ export function usePersistentWebview({
 			lastActiveTimestamps.set(paneId, Date.now());
 			container.appendChild(webview);
 			syncStoreFromWebview(webview);
-		} else {
-			// Create new webview
+		} else if (isActiveTab) {
+			// Create new webview only when this tab is active.
+			// For suspended panes in background tabs, skip creation until the user
+			// actually focuses the tab (isActiveTab becomes true → effect re-runs).
 			webview = document.createElement("webview") as Electron.WebviewTag;
 			webview.setAttribute("partition", "persist:superset");
 			webview.setAttribute("allowpopups", "");
@@ -221,6 +231,11 @@ export function usePersistentWebview({
 			webview.src = sanitizeUrl(restoreUrl);
 			if (wasSuspended) resumeBrowserPane(paneId);
 		}
+
+		// No webview exists and this tab is not active — nothing to do.
+		// When the user switches to this tab, isActiveTab becomes true and
+		// the effect re-runs, creating the webview at that point.
+		if (!webview) return;
 
 		const wv = webview;
 
@@ -398,13 +413,14 @@ export function usePersistentWebview({
 			}
 		};
 		// paneId is stable for the lifetime of a pane; initialUrlRef only used on first create.
-		// suspended triggers recreation when the idle-unloaded webview is focused again.
+		// isActiveTab triggers recreation when a suspended pane's tab is focused.
+		// suspended intentionally omitted — read via suspendedRef to prevent
+		// the resumeBrowserPane() call from re-triggering this effect.
 	}, [
 		paneId,
+		isActiveTab,
 		registerBrowser,
 		resumeBrowserPane,
-		// `suspended` intentionally omitted — read via suspendedRef to prevent
-		// the resumeBrowserPane() call from re-triggering this effect.
 		syncStoreFromWebview,
 		upsertHistory,
 	]);
