@@ -11,6 +11,15 @@ try {
 	// Native addon unavailable (non-macOS or build skipped).
 }
 
+let linuxMetrics: typeof import("@superset/linux-process-metrics") | null =
+	null;
+try {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
+	linuxMetrics = require("@superset/linux-process-metrics");
+} catch {
+	// Package unavailable (non-Linux or build skipped).
+}
+
 const execAsync = promisify(exec);
 const EXEC_TIMEOUT_MS = 5_000;
 const MAX_BUFFER = 10 * 1024 * 1024;
@@ -136,6 +145,31 @@ export function enrichWithPhysFootprint(
 	if (!nativeMetrics || pids.length === 0) return;
 	try {
 		const footprints = nativeMetrics.getPhysFootprints(pids);
+		for (const pid of pids) {
+			const footprint = footprints[pid];
+			const info = snapshot.byPid.get(pid);
+			if (info && typeof footprint === "number" && footprint > 0) {
+				info.memory = footprint;
+			}
+		}
+	} catch {
+		// Fall back to RSS already in the snapshot.
+	}
+}
+
+/**
+ * Replace RSS values with Linux PSS (Proportional Set Size) for the given PIDs.
+ *
+ * PSS is the closest Linux equivalent of macOS `phys_footprint`: it accounts
+ * for shared memory proportionally.  On non-Linux platforms this is a no-op.
+ */
+export function enrichWithLinuxFootprint(
+	snapshot: ProcessSnapshot,
+	pids: number[],
+): void {
+	if (!linuxMetrics || pids.length === 0) return;
+	try {
+		const footprints = linuxMetrics.getPhysFootprints(pids);
 		for (const pid of pids) {
 			const footprint = footprints[pid];
 			const info = snapshot.byPid.get(pid);

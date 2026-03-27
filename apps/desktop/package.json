@@ -87,6 +87,7 @@
 		"@superset/desktop-mcp": "workspace:*",
 		"@superset/host-service": "workspace:*",
 		"@superset/local-db": "workspace:*",
+		"@superset/linux-process-metrics": "workspace:*",
 		"@superset/macos-process-metrics": "workspace:*",
 		"@superset/pane-layout": "workspace:*",
 		"@superset/shared": "workspace:*",
