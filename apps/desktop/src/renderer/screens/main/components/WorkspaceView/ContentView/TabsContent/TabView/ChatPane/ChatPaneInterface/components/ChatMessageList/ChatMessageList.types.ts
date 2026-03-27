@@ -56,6 +56,10 @@ export interface UserMessageRestartRequest {
 
 export interface ChatMessageListProps {
 	messages: ChatMessage[];
+	/** True when there are older messages hidden behind the display limit */
+	hasMoreMessages?: boolean;
+	/** Callback to load the full message history (removes the display limit) */
+	onLoadAllMessages?: () => void;
 	isFocused: boolean;
 	isRunning: boolean;
 	isConversationLoading: boolean;

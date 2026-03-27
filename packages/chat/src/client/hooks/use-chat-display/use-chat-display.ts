@@ -1,8 +1,13 @@
 import { skipToken } from "@tanstack/react-query";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChatRuntimeServiceRouter } from "../../../server/trpc";
 import { chatRuntimeServiceTrpc } from "../../provider";
+
+/** Maximum number of messages rendered in the DOM at once. Older messages are
+ *  hidden behind a "Load earlier messages" button to reduce DOM node count and
+ *  memory pressure. Users can opt-in to see the full history on demand. */
+const MAX_DISPLAYED_MESSAGES = 100;
 
 type RouterInputs = inferRouterInputs<ChatRuntimeServiceRouter>;
 type RouterOutputs = inferRouterOutputs<ChatRuntimeServiceRouter>;
@@ -156,6 +161,7 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 	const latestAssistantErrorMessage = isRunning
 		? null
 		: findLatestAssistantErrorMessage(historicalMessages);
+	const [showAllMessages, setShowAllMessages] = useState(false);
 	const [optimisticUserMessage, setOptimisticUserMessage] = useState<
 		ListMessagesOutput[number] | null
 	>(null);
@@ -194,7 +200,7 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 		fileMessageCountAtSendRef.current = null;
 	}, [historicalMessages]);
 
-	const messages = useMemo(() => {
+	const allMessages = useMemo(() => {
 		const withOptimistic = optimisticUserMessage
 			? [...historicalMessages, optimisticUserMessage]
 			: historicalMessages;
@@ -204,6 +210,17 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 			isRunning,
 		});
 	}, [historicalMessages, optimisticUserMessage, currentMessage, isRunning]);
+
+	const hasMoreMessages =
+		!showAllMessages && allMessages.length > MAX_DISPLAYED_MESSAGES;
+	const messages = useMemo(
+		() =>
+			hasMoreMessages
+				? allMessages.slice(-MAX_DISPLAYED_MESSAGES)
+				: allMessages,
+		[allMessages, hasMoreMessages],
+	);
+	const loadAllMessages = useCallback(() => setShowAllMessages(true), []);
 
 	const commands = useMemo(
 		() => ({
@@ -350,6 +367,8 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 	return {
 		...displayState,
 		messages,
+		hasMoreMessages,
+		loadAllMessages,
 		isConversationLoading,
 		error:
 			runtimeErrorMessage ??
