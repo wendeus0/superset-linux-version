@@ -1949,7 +1949,7 @@ export const useTabsStore = create<TabsStore>()(
 				resumeBrowserPane: (paneId) => {
 					const state = get();
 					const pane = state.panes[paneId];
-					if (!pane) return;
+					if (!pane || pane.type !== "webview") return;
 					set({
 						panes: {
 							...state.panes,

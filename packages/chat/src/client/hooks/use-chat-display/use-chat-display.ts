@@ -162,6 +162,9 @@ export function useChatDisplay(options: UseChatDisplayOptions) {
 		? null
 		: findLatestAssistantErrorMessage(historicalMessages);
 	const [showAllMessages, setShowAllMessages] = useState(false);
+	useEffect(() => {
+		setShowAllMessages(false);
+	}, [sessionId]);
 	const [optimisticUserMessage, setOptimisticUserMessage] = useState<
 		ListMessagesOutput[number] | null
 	>(null);

@@ -108,6 +108,13 @@ export function usePersistentWebview({
 	const resumeBrowserPane = useTabsStore((s) => s.resumeBrowserPane);
 	const browserState = useTabsStore((s) => s.panes[paneId]?.browser);
 	const suspended = useTabsStore((s) => s.panes[paneId]?.suspended ?? false);
+	// Ref so the main lifecycle effect can read `suspended` at mount time without
+	// listing it as a dependency. If `suspended` were in the deps array, calling
+	// resumeBrowserPane() inside the effect would immediately re-trigger cleanup
+	// (parking the webview) and a new run (reclaiming it), causing a needless
+	// teardown/re-attach cycle on every restore-from-suspension.
+	const suspendedRef = useRef(suspended);
+	suspendedRef.current = suspended;
 	const historyIndex = browserState?.historyIndex ?? 0;
 	const historyLength = browserState?.history.length ?? 0;
 	const canGoBack = historyIndex > 0;
@@ -202,13 +209,17 @@ export function usePersistentWebview({
 			webviewRegistry.set(paneId, webview);
 			container.appendChild(webview);
 
-			// If the pane was suspended (idle-unloaded), restore to last known URL
-			const restoreUrl = suspended
+			// If the pane was suspended (idle-unloaded), restore to last known URL.
+			// Read via ref — not via the `suspended` selector — to avoid adding
+			// `suspended` to the effect deps (which would cause a loop: calling
+			// resumeBrowserPane mutates suspended, re-triggering cleanup+effect).
+			const wasSuspended = suspendedRef.current;
+			const restoreUrl = wasSuspended
 				? (useTabsStore.getState().panes[paneId]?.browser?.currentUrl ??
 					initialUrlRef.current)
 				: initialUrlRef.current;
 			webview.src = sanitizeUrl(restoreUrl);
-			if (suspended) resumeBrowserPane(paneId);
+			if (wasSuspended) resumeBrowserPane(paneId);
 		}
 
 		const wv = webview;
@@ -388,7 +399,8 @@ export function usePersistentWebview({
 		paneId,
 		registerBrowser,
 		resumeBrowserPane,
-		suspended,
+		// `suspended` intentionally omitted — read via suspendedRef to prevent
+		// the resumeBrowserPane() call from re-triggering this effect.
 		syncStoreFromWebview,
 		upsertHistory,
 	]);
