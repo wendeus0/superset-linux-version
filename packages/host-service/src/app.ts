@@ -4,8 +4,8 @@ import { createNodeWebSocket } from "@hono/node-ws";
 import { trpcServer } from "@hono/trpc-server";
 import { Octokit } from "@octokit/rest";
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { createApiClient } from "./api";
+import { buildLocalhostCors } from "./cors";
 import { createDb } from "./db";
 import { registerWorkspaceFilesystemEventsRoute } from "./filesystem";
 import type { AuthProvider } from "./providers/auth";
@@ -76,9 +76,10 @@ export function createApp(options?: CreateAppOptions): CreateAppResult {
 		filesystem,
 		pullRequests: pullRequestRuntime,
 	};
+	const rendererPort = Number(process.env.DESKTOP_VITE_PORT) || 5173;
 	const app = new Hono();
 	const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
-	app.use("*", cors());
+	app.use("*", buildLocalhostCors(rendererPort));
 	registerWorkspaceFilesystemEventsRoute({
 		app,
 		filesystem,
