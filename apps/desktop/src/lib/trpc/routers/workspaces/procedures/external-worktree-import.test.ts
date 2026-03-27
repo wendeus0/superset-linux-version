@@ -117,7 +117,6 @@ describe("External worktree detection and import", () => {
 		// Create external worktree
 		createExternalWorktree(mainRepoPath, "feature-test", externalWorktreePath);
 
-		// List external worktrees
 		const externalWorktrees = await listExternalWorktrees(mainRepoPath);
 
 		// Find our external worktree
