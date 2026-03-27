@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { listExternalWorktrees } from "../utils/git";
 
 /**
  * Integration tests for external worktree auto-import feature
@@ -115,9 +116,6 @@ describe("External worktree detection and import", () => {
 	test("listExternalWorktrees detects external worktree", async () => {
 		// Create external worktree
 		createExternalWorktree(mainRepoPath, "feature-test", externalWorktreePath);
-
-		// Import the listExternalWorktrees function
-		const { listExternalWorktrees } = await import("../utils/git");
 
 		// List external worktrees
 		const externalWorktrees = await listExternalWorktrees(mainRepoPath);
